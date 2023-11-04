@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.3
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: aflewandowski@alaska.edu
+author_name: Alex Lewandowski
+has_binder: true
+has_settings: false
+kind: frontend
+labextension_name: jlab-jbook-chapter-navigation
+project_short_description: A JupyterLab extension that mimics jupyter-book chapter
+    navigation on an un-built, cloned jupyter book in JupyterLab.
+python_name: jlab_jbook_chapter_navigation
+repository: https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation
+test: true
+
