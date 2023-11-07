@@ -36,6 +36,10 @@ jobs:
         set -eux
         python -m pip install .[test]
 
+        pytest -vv -r ap --cov jlab_jbook_chapter_navigation
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "jlab_jbook_chapter_navigation.*OK"
+
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jlab-jbook-chapter-navigation.*OK"
         python -m jupyterlab.browser_check
@@ -77,6 +81,9 @@ jobs:
 
         pip install "jupyterlab>=4.0.0,<5" jlab_jbook_chapter_navigation*.whl
 
+
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "jlab_jbook_chapter_navigation.*OK"
 
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jlab-jbook-chapter-navigation.*OK"

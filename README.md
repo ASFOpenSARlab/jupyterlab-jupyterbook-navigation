@@ -3,6 +3,10 @@
 [![Github Actions Status](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/main?urlpath=lab)
 A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
 
+This extension is composed of a Python package named `jlab_jbook_chapter_navigation`
+for the server extension and a NPM package named `jlab-jbook-chapter-navigation`
+for the frontend extension.
+
 ## Requirements
 
 - JupyterLab >= 4.0.0
@@ -23,6 +27,22 @@ To remove the extension, execute:
 pip uninstall jlab_jbook_chapter_navigation
 ```
 
+## Troubleshoot
+
+If you are seeing the frontend extension, but it is not working, check
+that the server extension is enabled:
+
+```bash
+jupyter server extension list
+```
+
+If the server extension is installed and enabled, but you are not seeing
+the frontend extension, check the frontend extension is installed:
+
+```bash
+jupyter labextension list
+```
+
 ## Contributing
 
 ### Development install
@@ -37,9 +57,11 @@ The `jlpm` command is JupyterLab's pinned version of
 # Clone the repo to your local environment
 # Change directory to the jlab_jbook_chapter_navigation directory
 # Install package in development mode
-pip install -e "."
+pip install -e ".[test]"
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
+# Server extension must be manually installed in develop mode
+jupyter server extension enable jlab_jbook_chapter_navigation
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -64,6 +86,8 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
+# Server extension must be manually disabled in develop mode
+jupyter server extension disable jlab_jbook_chapter_navigation
 pip uninstall jlab_jbook_chapter_navigation
 ```
 
@@ -72,6 +96,24 @@ command. To find its location, you can run `jupyter labextension list` to figure
 folder is located. Then you can remove the symlink named `jlab-jbook-chapter-navigation` within that folder.
 
 ### Testing the extension
+
+#### Server tests
+
+This extension is using [Pytest](https://docs.pytest.org/) for Python code testing.
+
+Install test dependencies (needed only once):
+
+```sh
+pip install -e ".[test]"
+# Each time you install the Python package, you need to restore the front-end extension link
+jupyter labextension develop . --overwrite
+```
+
+To execute them, run:
+
+```sh
+pytest -vv -r ap --cov jlab_jbook_chapter_navigation
+```
 
 #### Frontend tests
 

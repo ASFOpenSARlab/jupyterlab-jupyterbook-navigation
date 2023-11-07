@@ -5,7 +5,7 @@ author_email: aflewandowski@alaska.edu
 author_name: Alex Lewandowski
 has_binder: true
 has_settings: false
-kind: frontend
+kind: server
 labextension_name: jlab-jbook-chapter-navigation
 project_short_description: A JupyterLab extension that mimics jupyter-book chapter
     navigation on an un-built, cloned jupyter book in JupyterLab.
