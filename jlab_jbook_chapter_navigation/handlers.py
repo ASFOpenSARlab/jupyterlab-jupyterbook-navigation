@@ -5,6 +5,12 @@ from sphinx_external_toc.parsing import parse_toc_yaml
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
+
+from jupyter_server.services.contents.filemanager import FileContentsManager
+# from jupyter_server.utils import url_path_join
+
+from jupyter_server.services.contents.manager import ContentsManager
+
 import tornado
 
 def get_title(file_pth):
@@ -62,9 +68,12 @@ class RouteHandler(APIHandler):
             toc_pth = f"_toc.yml not found in {Path.cwd()}"
         toc = parse_toc_yaml(toc_pth)
         html_toc = toc_to_html(toc)
+
+        fm = FileContentsManager()
+
         self.finish(json.dumps({
             "data": str(html_toc),
-            "cwd": str(Path.cwd())
+            "cwd": str(fm.root_dir)
         }))
 
 
@@ -72,6 +81,6 @@ def setup_handlers(web_app):
     host_pattern = ".*$"
 
     base_url = web_app.settings["base_url"]
-    route_pattern = url_path_join(base_url, "jlab-jbook-chapter-navigation", "get-example")
+    route_pattern = url_path_join(base_url, "jlab-jbook-chapter-navigation", "get-toc")
     handlers = [(route_pattern, RouteHandler)]
     web_app.add_handlers(host_pattern, handlers)
