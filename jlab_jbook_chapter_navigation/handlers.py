@@ -7,11 +7,24 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
 from jupyter_server.services.contents.filemanager import FileContentsManager
-# from jupyter_server.utils import url_path_join
-
-from jupyter_server.services.contents.manager import ContentsManager
 
 import tornado
+
+from IPython.core.display_functions import display
+
+
+def get_current_working_directory(current_URL):
+    fcm = FileContentsManager()
+    cwd = fcm.root_dir
+
+    if 'tree' in current_URL:
+        subfolder = current_URL.split('/tree/')[1]
+    else:
+        subfolder = ''
+
+    cwd = f"{cwd}/{subfolder}"
+    return cwd
+
 
 def get_title(file_pth):
     file_pth = Path("ASF_SAR_Data_Recipes")/file_pth
@@ -61,19 +74,24 @@ class RouteHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        toc_pth = list((Path.cwd()/"ASF_SAR_Data_Recipes").glob('_toc.yml'))
+        current_URL = self.get_argument('current_URL', default=None)
+
+        cwd = get_current_working_directory(current_URL)
+
+        toc_pth = list(Path(cwd).glob('_toc.yml'))
         if len(toc_pth) > 0:
             toc_pth = str(toc_pth[0])
+            toc = parse_toc_yaml(toc_pth)
+            html_toc = toc_to_html(toc)
         else:
-            toc_pth = f"_toc.yml not found in {Path.cwd()}"
-        toc = parse_toc_yaml(toc_pth)
-        html_toc = toc_to_html(toc)
+            toc_pth = f"Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}"
+            html_toc = f"<p>{toc_pth}</p>"
 
-        fm = FileContentsManager()
 
         self.finish(json.dumps({
             "data": str(html_toc),
-            "cwd": str(fm.root_dir)
+            "cwd": cwd,
+            "current_URL": str(current_URL)
         }))
 
 

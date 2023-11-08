@@ -1,25 +1,31 @@
 import { URLExt } from '@jupyterlab/coreutils';
-
 import { ServerConnection } from '@jupyterlab/services';
 
 /**
  * Call the API extension
  *
  * @param endPoint API REST end point for the extension
+ * @param current_URL Current URL as a string
  * @param init Initial values for the request
  * @returns The response body interpreted as JSON
  */
 export async function requestAPI<T>(
   endPoint = '',
+  current_URL = '', // New parameter
   init: RequestInit = {}
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();
-  const requestUrl = URLExt.join(
+  let requestUrl = URLExt.join(
     settings.baseUrl,
     'jlab-jbook-chapter-navigation', // API Namespace
     endPoint
   );
+
+  // Include current_URL in the request
+  if (current_URL) {
+    requestUrl += `?current_URL=${encodeURIComponent(current_URL)}`;
+  }
 
   let response: Response;
   try {
