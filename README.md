@@ -1,6 +1,7 @@
 # jlab_jbook_chapter_navigation
 
-[![Github Actions Status](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/main?urlpath=lab)
+[![Github Actions Status](https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/main?urlpath=lab)
+
 A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
 
 This extension is composed of a Python package named `jlab_jbook_chapter_navigation`
