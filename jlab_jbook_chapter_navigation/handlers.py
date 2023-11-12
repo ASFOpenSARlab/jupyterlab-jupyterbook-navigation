@@ -89,7 +89,7 @@ class RouteHandler(APIHandler):
             toc_pth = str(toc_pth[0])
             toc = parse_toc_yaml(toc_pth)
             html_toc = f'<p id="toc_title">{str(get_book_title(config_pth[0]))}</p>'
-            html_toc = f"{html_toc} {toc_to_html(toc, cwd)}"
+            html_toc = f"{html_toc} {toc_to_html(toc, browser_dir)}"
 
         else:
             toc_pth = f"Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}"

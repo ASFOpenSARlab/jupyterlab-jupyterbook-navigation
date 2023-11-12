@@ -8,18 +8,19 @@ import { Widget } from '@lumino/widgets';
 
 import { FileBrowser } from '@jupyterlab/filebrowser';
 
-// import { IDocumentManager } from '@jupyterlab/docmanager';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 
 // import { ContentsManager } from '@jupyterlab/services';
+
 
 
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jlab-jbook-chapter-navigation:plugin',
   description: 'A JupyterLab extension that mimics jupyter-book chapter navigation on an un-built, cloned jupyter book in JupyterLab.',
   autoStart: true,
-  requires: [ILabShell, IFileBrowserFactory],
-  activate: async (app: JupyterFrontEnd, shell: ILabShell, fileBrowserFactory: IFileBrowserFactory) => {
+  requires: [ILabShell, IFileBrowserFactory, IDocumentManager],
+  activate: async (app: JupyterFrontEnd, shell: ILabShell, fileBrowserFactory: IFileBrowserFactory, docManager: IDocumentManager) => {
     console.log('JupyterLab extension jlab-jbook-chapter-navigation is activated!');
 
 
@@ -50,7 +51,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         console.log(data);
         summary.innerHTML = data['data'];
         // Add the event listener after the widget's content is updated
-        addClickListenerToButtons(fileBrowser);
+        addClickListenerToButtons(fileBrowser, docManager);
       } catch (reason) {
         console.error(
           `The jlab_jbook_chapter_navigation server extension appears to be missing.\n${reason}`
@@ -68,26 +69,36 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
 export default plugin;
 
-function addClickListenerToButtons(fileBrowser: FileBrowser | null) {
+function addClickListenerToButtons(fileBrowser: FileBrowser | null, docManager: IDocumentManager) {
   const buttons = document.querySelectorAll('.toc-button');
   buttons.forEach((button) => {
       button.addEventListener('click', (event: Event) => {
-          const index = button.getAttribute('data-index');
-          console.log(`Button ${index} clicked`);
+        const index = button.getAttribute('data-index');
+        console.log(`Button ${index} clicked`);
 
-          // Check if the file browser is available
-          if (!fileBrowser) {
-              console.error('File browser is not available.');
-              return;
-          }
+        // Check if the file browser is available
+        if (!fileBrowser) {
+            console.error('File browser is not available.');
+            return;
+        }
 
-          // Check if the file browser's path is a valid string
-          if (typeof fileBrowser.model.path !== 'string') {
-              console.error(`Invalid path: The current path is either not set or not a string. Path: ${fileBrowser.model.path}`);
-              return;
-          }
-          // If all checks pass, log the current directory
-          console.log(`Current directory: ${fileBrowser.model.path}`);
+        // Check if the file browser's path is a valid string
+        if (typeof fileBrowser.model.path !== 'string') {
+            console.error(`Invalid path: The current path is either not set or not a string. Path: ${fileBrowser.model.path}`);
+            return;
+        }
+        // If all checks pass, log the current directory
+        console.log(`Current directory: ${fileBrowser.model.path}`);
+
+        const filePath = button.getAttribute('data-file-path');
+        if (typeof filePath === 'string') {
+
+          // docManager.openOrReveal("/ASF_SAR_Data_Recipes/burst_stack_to_custom_chunked_zarr.ipynb");
+
+
+          docManager.openOrReveal(filePath);
+
+        }
       });
   });
 }
