@@ -9,12 +9,16 @@
     * https://material-components-web.appspot.com/elevation.html
     */
 .jp-Button {
-    padding: 25px;
     color: rgb(10 47 162 / 87%);
+    background-color: var(--jp-layout-color1);
+}
+.jp-Button:hover {
+    color: var(--jp-layout-color3);
+    /* background-color: var(--jp-layout-color3); */
 }
 
-
-/* button.jp-Button.toc-button {
-    padding: 25px !important; /* Adjust the value according to your preferences */
-    /* color: rgb(10 47 162 / 87%) !important; */
-/* } */ 
+#toc_title {
+    font-size: var(--jp-ui-font-size2);
+    font-weight: bold;
+    color: var(--jp-ui-font-color0);
+}

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import yaml
 
 from sphinx_external_toc.parsing import parse_toc_yaml
 
@@ -12,23 +13,13 @@ import tornado
 from IPython.core.display_functions import display
 
 
-def get_current_working_directory(current_URL):
+def get_current_working_directory():
     fcm = FileContentsManager()
-    cwd = fcm.root_dir
-
-    if 'tree' in current_URL:
-        subfolder = current_URL.split('/tree/')[1]
-        if not Path(subfolder).is_dir:
-            subfolder = str(Path(subfolder).parent)
-    else:
-        subfolder = ''
-
-    cwd = f"{cwd}/{subfolder}"
-    return cwd
-
+    return f"{fcm.root_dir}/ASF_SAR_Data_Recipes"
 
 def get_title(file_pth):
-    file_pth = Path("ASF_SAR_Data_Recipes")/file_pth
+#     file_pth = Path(file_pth)
+    file_pth = Path(f"{get_current_working_directory()}/{file_pth}")
 
     if file_pth.suffix == '.ipynb':
         f = open(file_pth)
@@ -43,7 +34,15 @@ def get_title(file_pth):
             for line in lines:
                 if line[:2] == '# ':
                     return line[2:].strip()
-
+                
+def get_book_title(config_pth):
+    
+    try:
+        with open(config_pth, 'r') as f:
+            data = yaml.load(f, Loader=yaml.SafeLoader)
+        return data['title']
+    except Exception as e:
+        return f'Exception: {e}'
 
 def toc_to_html(toc, cwd):
     """
@@ -52,62 +51,29 @@ def toc_to_html(toc, cwd):
 
     TODO: add ordered list support for numbered TOCs
     """
-    html = f"{toc.root.docname} <ul>"
-    for tree in toc.root.subtrees:
-        html = f"{html} <li>{tree.caption}</li><ul>"
-        for i, branch in enumerate(tree.items):
-            # relative_path = (Path(cwd)/branch).relative_to(Path.cwd())
+    cwd = Path(cwd)
+    html = f"<ul>"
+    for i, tree in enumerate(toc.root.subtrees):
+        html = f"{html} <li><b>{tree.caption}</b></li><ul>"
+        for j, branch in enumerate(tree.items):
             title = get_title(branch)
             if title:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{i}">{title}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}">{title}</button></li>'
             else:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{i}">{branch}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}">{branch}</button></li>'
             if len(toc[branch].subtrees) > 0:
                 html = f"{html} <ul>"
                 for twig in toc[branch].subtrees:
-                    for j, leaf in enumerate(twig.items):
-                        # relative_path = (Path(cwd)/leaf).relative_to(Path.cwd())
+                    for k, leaf in enumerate(twig.items):
                         title = get_title(leaf)
                         if title:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{i+j+100}">{title}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}">{title}</button></li>'
                         else:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{i+j+100}">{leaf}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}">{leaf}</button></li>'
                 html = f"{html} </ul>"
         html = f"{html} </ul>"
     html = f"{html} </ul>"
     return html 
-
-# def toc_to_html(toc, cwd):
-#     """
-#     Builds a Jupyter-Book Table of Contents as an unordered HTML list.
-#     Links to source files for viewing in JupyterLab (not a built html book)
-
-#     TODO: add ordered list support for numbered TOCs
-#     """
-#     html = f"{toc.root.docname} <ul>"
-#     for tree in toc.root.subtrees:
-#         html = f"{html} <li>{tree.caption}</li><ul>"
-#         for branch in tree.items:
-#             relative_path = (Path(cwd)/branch).relative_to(Path.cwd())
-#             title = get_title(branch)
-#             if title:
-#                 html = f'{html} <li><a href={relative_path}>{title}</a></li>'
-#             else:
-#                 html = f'{html} <li><a href={relative_path}>{branch}</a></li>'
-#             if len(toc[branch].subtrees) > 0:
-#                 html = f"{html} <ul>"
-#                 for twig in toc[branch].subtrees:
-#                     for leaf in twig.items:
-#                         relative_path = (Path(cwd)/leaf).relative_to(Path.cwd())
-#                         title = get_title(leaf)
-#                         if title:
-#                             html = f'{html} <li><a href={relative_path}>{title}</a></li>'
-#                         else:
-#                             html = f'{html} <li><a href={relative_path}>{leaf}</a></li>'
-#                 html = f"{html} </ul>"
-#         html = f"{html} </ul>"
-#     html = f"{html} </ul>"
-#     return html 
 
 
 class RouteHandler(APIHandler):
@@ -116,26 +82,24 @@ class RouteHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        current_URL = self.get_argument('current_URL', default=None)
+        # current_URL = self.get_argument('current_URL', default=None)
 
-        cwd = get_current_working_directory(current_URL)
-
+        cwd = get_current_working_directory()
         toc_pth = list(Path(cwd).glob('_toc.yml'))
+        config_pth = list(Path(cwd).glob('_config.yml'))
         if len(toc_pth) > 0:
             toc_pth = str(toc_pth[0])
             toc = parse_toc_yaml(toc_pth)
-            # html_toc = toc_to_html(toc, current_URL)
-            html_toc = toc_to_html(toc, cwd)
-            # html_toc = toc_to_html(toc)
+            html_toc = f'<p id="toc_title">{str(get_book_title(config_pth[0]))}</p>'
+            html_toc = f"{html_toc} {toc_to_html(toc, cwd)}"
+
         else:
             toc_pth = f"Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}"
-            html_toc = f"<p>{toc_pth}</p>"
-
+            html_toc = f'<p id="toc_title">Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}</p>'
 
         self.finish(json.dumps({
             "data": str(html_toc),
-            "cwd": cwd,
-            "current_URL": str(current_URL)
+            "cwd": cwd
         }))
 
 
