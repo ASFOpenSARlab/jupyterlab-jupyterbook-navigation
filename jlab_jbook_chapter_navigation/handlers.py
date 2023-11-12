@@ -13,13 +13,9 @@ import tornado
 from IPython.core.display_functions import display
 
 
-def get_current_working_directory():
-    fcm = FileContentsManager()
-    return f"{fcm.root_dir}/ASF_SAR_Data_Recipes"
-
 def get_title(file_pth):
 #     file_pth = Path(file_pth)
-    file_pth = Path(f"{get_current_working_directory()}/{file_pth}")
+    file_pth = Path(file_pth)
 
     if file_pth.suffix == '.ipynb':
         f = open(file_pth)
@@ -56,7 +52,7 @@ def toc_to_html(toc, cwd):
     for i, tree in enumerate(toc.root.subtrees):
         html = f"{html} <li><b>{tree.caption}</b></li><ul>"
         for j, branch in enumerate(tree.items):
-            title = get_title(branch)
+            title = get_title(cwd/branch)
             if title:
                 html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}">{title}</button></li>'
             else:
@@ -65,7 +61,7 @@ def toc_to_html(toc, cwd):
                 html = f"{html} <ul>"
                 for twig in toc[branch].subtrees:
                     for k, leaf in enumerate(twig.items):
-                        title = get_title(leaf)
+                        title = get_title(cwd/leaf)
                         if title:
                             html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}">{title}</button></li>'
                         else:
@@ -82,9 +78,11 @@ class RouteHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        # current_URL = self.get_argument('current_URL', default=None)
+        browser_dir = self.get_argument('current_URL', default=None)
 
-        cwd = get_current_working_directory()
+        fcm = FileContentsManager()
+        cwd = f"{fcm.root_dir}/{browser_dir}"
+
         toc_pth = list(Path(cwd).glob('_toc.yml'))
         config_pth = list(Path(cwd).glob('_config.yml'))
         if len(toc_pth) > 0:
@@ -99,7 +97,8 @@ class RouteHandler(APIHandler):
 
         self.finish(json.dumps({
             "data": str(html_toc),
-            "cwd": cwd
+            "cwd": cwd,
+            "current_URL": browser_dir
         }))
 
 

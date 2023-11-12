@@ -11,6 +11,7 @@ import { FileBrowser } from '@jupyterlab/filebrowser';
 // import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 
+// import { ContentsManager } from '@jupyterlab/services';
 
 
 const plugin: JupyterFrontEndPlugin<void> = {
@@ -45,7 +46,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       // Make the API request and update the widget's content
       try {
-        const data = await requestAPI<any>('get-toc', document.URL);
+        const data = await requestAPI<any>('get-toc', fileBrowser?.model.path);
         console.log(data);
         summary.innerHTML = data['data'];
         // Add the event listener after the widget's content is updated
@@ -85,7 +86,6 @@ function addClickListenerToButtons(fileBrowser: FileBrowser | null) {
               console.error(`Invalid path: The current path is either not set or not a string. Path: ${fileBrowser.model.path}`);
               return;
           }
-
           // If all checks pass, log the current directory
           console.log(`Current directory: ${fileBrowser.model.path}`);
       });
