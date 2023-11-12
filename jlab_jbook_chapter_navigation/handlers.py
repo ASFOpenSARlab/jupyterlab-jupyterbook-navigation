@@ -54,18 +54,18 @@ def toc_to_html(toc, cwd):
         for j, branch in enumerate(tree.items):
             title = get_title(cwd/branch)
             if title:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}">{title}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{cwd}/{branch}">{title}</button></li>'
             else:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}">{branch}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{cwd}/{branch}">{branch}</button></li>'
             if len(toc[branch].subtrees) > 0:
                 html = f"{html} <ul>"
                 for twig in toc[branch].subtrees:
                     for k, leaf in enumerate(twig.items):
                         title = get_title(cwd/leaf)
                         if title:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}">{title}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{cwd}/{leaf}">{title}</button></li>'
                         else:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}">{leaf}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{cwd}/{leaf}">{leaf}</button></li>'
                 html = f"{html} </ul>"
         html = f"{html} </ul>"
     html = f"{html} </ul>"
