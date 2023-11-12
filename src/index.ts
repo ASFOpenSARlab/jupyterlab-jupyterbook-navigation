@@ -27,7 +27,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Create the widget only once
     const widget = new Widget();
     widget.id = '@jupyterlab-sidepanel/example';
-    widget.title.iconClass = 'jp-SpreadsheetIcon jp-SideBar-tabIcon';
+    // widget.title.iconClass = 'jp-SpreadsheetIcon jp-SideBar-tabIcon';
+    widget.title.iconClass = 'jp-NotebookIcon jp-SideBar-tabIcon';
+
     widget.title.caption = 'Side Panel';
 
     let summary = document.createElement('p');

@@ -1,20 +1,11 @@
 @import url('base.css');
 
-
-/* Elevation
-    *
-    * We style box-shadows using Material Design's idea of elevation. These particular numbers are taken from here:
-    * 
-    * https://github.com/material-components/material-components-web
-    * https://material-components-web.appspot.com/elevation.html
-    */
-.jp-Button {
-    color: rgb(10 47 162 / 87%);
+.jp-Button.toc-button {
+    color: var(--jp-layout-color4);
     background-color: var(--jp-layout-color1);
 }
-.jp-Button:hover {
+.jp-Button.toc-button:hover {
     color: var(--jp-layout-color3);
-    /* background-color: var(--jp-layout-color3); */
 }
 
 #toc_title {
