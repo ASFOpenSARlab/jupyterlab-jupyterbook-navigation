@@ -39,6 +39,15 @@ def get_book_title(config_pth):
     except Exception as e:
         return f'Exception: {e}'
     
+def get_author(config_pth):
+    
+    try:
+        with open(config_pth, 'r') as f:
+            data = yaml.load(f, Loader=yaml.SafeLoader)
+        return data['author']
+    except Exception as e:
+        return f'Exception: {e}'   
+    
 def get_suffix_pth(perhaps_suffixless_pth):
     if Path(perhaps_suffixless_pth).suffix != '':
         return perhaps_suffixless_pth
@@ -88,27 +97,38 @@ class RouteHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        browser_dir = self.get_argument('current_URL', default=None)
+        browser_dir = self.get_argument('browser_dir', default=None)
 
         fcm = FileContentsManager()
         cwd = f"{fcm.root_dir}/{browser_dir}"
 
         toc_pth = list(Path(cwd).glob('_toc.yml'))
         config_pth = list(Path(cwd).glob('_config.yml'))
-        if len(toc_pth) > 0:
+        if len(toc_pth) > 0 or len(config_pth) > 0:
             toc_pth = str(toc_pth[0])
             toc = parse_toc_yaml(toc_pth)
             html_toc = f'<p id="toc_title">{str(get_book_title(config_pth[0]))}</p>'
+            author = str(get_author(config_pth[0]))
+            if len(author) > 0:
+                html_toc = f'{html_toc} <p id="toc_author">Author: {author}</p>'
             html_toc = f"{html_toc} {toc_to_html(toc, browser_dir)}"
-
         else:
-            toc_pth = f"Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}"
-            html_toc = f'<p id="toc_title">Not a Jupyter-Book: _toc.yml not found in {Path.cwd()}</p>'
+            # html_toc = f'<p id="toc_title">Not a Jupyter-Book</p>'
+            # html_toc = f'{html_toc} <p id="toc_author">"_toc.yml" and/or "_config.yml" not found in:</p>'
+            # html_toc = f'{html_toc} <p id="toc_author">{Path.cwd()}</p>'
+            # html_toc = f'{html_toc} <p id="toc_author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
+
+            html_toc = (f'<p id="toc_title">Not a Jupyter-Book</p>'
+                        f'<p id="toc_author">"_toc.yml" and/or "_config.yml" not found in:</p>'
+                        f'<p id="toc_author">{Path.cwd()}</p>'
+                        f'<p id="toc_author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>')
+
+
 
         self.finish(json.dumps({
             "data": str(html_toc),
             "cwd": cwd,
-            "current_URL": browser_dir
+            "browser_dir": browser_dir
         }))
 
 

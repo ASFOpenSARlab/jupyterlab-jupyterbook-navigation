@@ -11,5 +11,13 @@
 #toc_title {
     font-size: var(--jp-ui-font-size2);
     font-weight: bold;
-    color: var(--jp-ui-font-color0);
+    color: var(--jp-jupyter-icon-color);
+    padding-left: 15px;
+}
+
+#toc_author {
+    font-size: var(--jp-ui-font-size1);
+    font-weight: bold;
+    color: var(--jp-ui-font-color2);
+    padding-left: 15px;
 }

@@ -5,13 +5,13 @@ import { ServerConnection } from '@jupyterlab/services';
  * Call the API extension
  *
  * @param endPoint API REST end point for the extension
- * @param current_URL Current URL as a string
+ * @param browser_dir Current broswer directory as a string
  * @param init Initial values for the request
  * @returns The response body interpreted as JSON
  */
 export async function requestAPI<T>(
   endPoint = '',
-  current_URL = '', // New parameter
+  browser_dir = '', // New parameter
   init: RequestInit = {}
 ): Promise<T> {
   // Make request to Jupyter API
@@ -22,9 +22,9 @@ export async function requestAPI<T>(
     endPoint
   );
 
-  // Include current_URL in the request
-  if (current_URL) {
-    requestUrl += `?current_URL=${encodeURIComponent(current_URL)}`;
+  // Include browser_dir in the request
+  if (browser_dir) {
+    requestUrl += `?browser_dir=${encodeURIComponent(browser_dir)}`;
   }
 
   let response: Response;
