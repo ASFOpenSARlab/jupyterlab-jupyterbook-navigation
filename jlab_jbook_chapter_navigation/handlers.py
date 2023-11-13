@@ -14,7 +14,6 @@ from IPython.core.display_functions import display
 
 
 def get_title(file_pth):
-#     file_pth = Path(file_pth)
     file_pth = Path(file_pth)
 
     if file_pth.suffix == '.ipynb':
@@ -39,6 +38,15 @@ def get_book_title(config_pth):
         return data['title']
     except Exception as e:
         return f'Exception: {e}'
+    
+def get_suffix_pth(perhaps_suffixless_pth):
+    if Path(perhaps_suffixless_pth).suffix != '':
+        return perhaps_suffixless_pth
+    else:
+        pth = Path.cwd().glob(f"{perhaps_suffixless_pth}*")
+        if pth:
+            suffix = str(list(pth)[0].suffix)
+            return f"{perhaps_suffixless_pth}{suffix}"
 
 def toc_to_html(toc, cwd):
     """
@@ -53,23 +61,25 @@ def toc_to_html(toc, cwd):
         html = f"{html} <li><b>{tree.caption}</b></li><ul>"
         for j, branch in enumerate(tree.items):
             title = get_title(cwd/branch)
+            branch_pth = get_suffix_pth(cwd/branch)
             if title:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{cwd}/{branch}">{title}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{branch_pth}">{title}</button></li>'
             else:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{cwd}/{branch}">{branch}</button></li>'
+                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{branch_pth}">{branch}</button></li>'
             if len(toc[branch].subtrees) > 0:
                 html = f"{html} <ul>"
                 for twig in toc[branch].subtrees:
                     for k, leaf in enumerate(twig.items):
                         title = get_title(cwd/leaf)
+                        leaf_pth = get_suffix_pth(cwd/leaf)
                         if title:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{cwd}/{leaf}">{title}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{leaf_pth}">{title}</button></li>'
                         else:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{cwd}/{leaf}">{leaf}</button></li>'
+                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{leaf_pth}">{leaf}</button></li>'
                 html = f"{html} </ul>"
         html = f"{html} </ul>"
     html = f"{html} </ul>"
-    return html 
+    return html
 
 
 class RouteHandler(APIHandler):
