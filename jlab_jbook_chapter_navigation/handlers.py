@@ -113,11 +113,6 @@ class RouteHandler(APIHandler):
                 html_toc = f'{html_toc} <p id="toc_author">Author: {author}</p>'
             html_toc = f"{html_toc} {toc_to_html(toc, browser_dir)}"
         else:
-            # html_toc = f'<p id="toc_title">Not a Jupyter-Book</p>'
-            # html_toc = f'{html_toc} <p id="toc_author">"_toc.yml" and/or "_config.yml" not found in:</p>'
-            # html_toc = f'{html_toc} <p id="toc_author">{Path.cwd()}</p>'
-            # html_toc = f'{html_toc} <p id="toc_author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
-
             html_toc = (f'<p id="toc_title">Not a Jupyter-Book</p>'
                         f'<p id="toc_author">"_toc.yml" and/or "_config.yml" not found in:</p>'
                         f'<p id="toc_author">{Path.cwd()}</p>'

@@ -11,10 +11,6 @@ import { FileBrowser } from '@jupyterlab/filebrowser';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 
-// import { ContentsManager } from '@jupyterlab/services';
-
-
-
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jlab-jbook-chapter-navigation:plugin',
   description: 'A JupyterLab extension that mimics jupyter-book chapter navigation on an un-built, cloned jupyter book in JupyterLab.',
@@ -50,7 +46,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const data = await requestAPI<any>('get-toc', fileBrowser?.model.path);
         console.log(data);
         summary.innerHTML = data['data'];
-        // Add the event listener after the widget's content is updated
+        // Add the button event listener after the widget's content is updated
         addClickListenerToButtons(fileBrowser, docManager);
       } catch (reason) {
         console.error(
