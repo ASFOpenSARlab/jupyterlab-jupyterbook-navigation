@@ -3,4 +3,4 @@ node_modules
 **/lib
 **/package.json
 !/package.json
-jlab_jbook_chapter_navigation
+jupyterlab_jupyterbook_navigation

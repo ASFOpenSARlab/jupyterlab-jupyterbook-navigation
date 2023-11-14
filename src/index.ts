@@ -12,12 +12,12 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jlab-jbook-chapter-navigation:plugin',
+  id: 'jupyterlab-jupyterbook-navigation:plugin',
   description: 'A JupyterLab extension that mimics jupyter-book chapter navigation on an un-built, cloned jupyter book in JupyterLab.',
   autoStart: true,
   requires: [ILabShell, IFileBrowserFactory, IDocumentManager],
   activate: async (app: JupyterFrontEnd, shell: ILabShell, fileBrowserFactory: IFileBrowserFactory, docManager: IDocumentManager) => {
-    console.log('JupyterLab extension jlab-jbook-chapter-navigation is activated!');
+    console.log('JupyterLab extension jupyterlab-jupyterbook-navigation is activated!');
 
 
     // Create the widget only once
@@ -50,7 +50,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         addClickListenerToButtons(fileBrowser, docManager);
       } catch (reason) {
         console.error(
-          `The jlab_jbook_chapter_navigation server extension appears to be missing.\n${reason}`
+          `The jupyterlab_jupyterbook_navigation server extension appears to be missing.\n${reason}`
         );
       }
     };

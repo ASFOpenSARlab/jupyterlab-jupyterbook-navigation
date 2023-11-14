@@ -1,11 +1,11 @@
-# jlab_jbook_chapter_navigation
+# jupyterlab_jupyterbook_navigation
 
 [![Github Actions Status](https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/main?urlpath=lab)
 
 A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
 
-This extension is composed of a Python package named `jlab_jbook_chapter_navigation`
-for the server extension and a NPM package named `jlab-jbook-chapter-navigation`
+This extension is composed of a Python package named `jupyterlab_jupyterbook_navigation`
+for the server extension and a NPM package named `jupyterlab-jupyterbook-navigation`
 for the frontend extension.
 
 ## Requirements
@@ -17,7 +17,7 @@ for the frontend extension.
 To install the extension, execute:
 
 ```bash
-pip install jlab_jbook_chapter_navigation
+pip install jupyterlab_jupyterbook_navigation
 ```
 
 ## Uninstall
@@ -25,7 +25,7 @@ pip install jlab_jbook_chapter_navigation
 To remove the extension, execute:
 
 ```bash
-pip uninstall jlab_jbook_chapter_navigation
+pip uninstall jupyterlab_jupyterbook_navigation
 ```
 
 ## Troubleshoot
@@ -56,13 +56,13 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jlab_jbook_chapter_navigation directory
+# Change directory to the jupyterlab_jupyterbook_navigation directory
 # Install package in development mode
 pip install -e ".[test]"
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Server extension must be manually installed in develop mode
-jupyter server extension enable jlab_jbook_chapter_navigation
+jupyter server extension enable jupyterlab_jupyterbook_navigation
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -88,13 +88,13 @@ jupyter lab build --minimize=False
 
 ```bash
 # Server extension must be manually disabled in develop mode
-jupyter server extension disable jlab_jbook_chapter_navigation
-pip uninstall jlab_jbook_chapter_navigation
+jupyter server extension disable jupyterlab_jupyterbook_navigation
+pip uninstall jupyterlab_jupyterbook_navigation
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jlab-jbook-chapter-navigation` within that folder.
+folder is located. Then you can remove the symlink named `jupyterlab-jupyterbook-navigation` within that folder.
 
 ### Testing the extension
 
@@ -113,7 +113,7 @@ jupyter labextension develop . --overwrite
 To execute them, run:
 
 ```sh
-pytest -vv -r ap --cov jlab_jbook_chapter_navigation
+pytest -vv -r ap --cov jupyterlab_jupyterbook_navigation
 ```
 
 #### Frontend tests
