@@ -1,10 +1,10 @@
-# a mybinder.org-ready environment for demoing jlab_jbook_chapter_navigation
+# a mybinder.org-ready environment for demoing jupyterlab_jupyterbook_navigation
 # this environment may also be used locally on Linux/MacOS/Windows, e.g.
 #
 #   conda env update --file binder/environment.yml
-#   conda activate jlab-jbook-chapter-navigation-demo
+#   conda activate jupyterlab-jupyterbook-navigation-demo
 #
-name: jlab-jbook-chapter-navigation-demo
+name: jupyterlab-jupyterbook-navigation-demo
 
 channels:
   - conda-forge

@@ -18,7 +18,7 @@ export async function requestAPI<T>(
   const settings = ServerConnection.makeSettings();
   let requestUrl = URLExt.join(
     settings.baseUrl,
-    'jlab-jbook-chapter-navigation', // API Namespace
+    'jupyterlab-jupyterbook-navigation', // API Namespace
     endPoint
   );
 

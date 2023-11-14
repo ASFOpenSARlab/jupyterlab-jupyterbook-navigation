@@ -3,7 +3,7 @@ requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0
 build-backend = "hatchling.build"
 
 [project]
-name = "jlab_jbook_chapter_navigation"
+name = "jupyterlab_jupyterbook_navigation"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
@@ -43,25 +43,25 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["jlab_jbook_chapter_navigation/labextension"]
+artifacts = ["jupyterlab_jupyterbook_navigation/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jlab_jbook_chapter_navigation/labextension" = "share/jupyter/labextensions/jlab-jbook-chapter-navigation"
-"install.json" = "share/jupyter/labextensions/jlab-jbook-chapter-navigation/install.json"
+"jupyterlab_jupyterbook_navigation/labextension" = "share/jupyter/labextensions/jupyterlab-jupyterbook-navigation"
+"install.json" = "share/jupyter/labextensions/jupyterlab-jupyterbook-navigation/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 
 [tool.hatch.build.hooks.version]
-path = "jlab_jbook_chapter_navigation/_version.py"
+path = "jupyterlab_jupyterbook_navigation/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "jlab_jbook_chapter_navigation/labextension/static/style.js",
-    "jlab_jbook_chapter_navigation/labextension/package.json",
+    "jupyterlab_jupyterbook_navigation/labextension/static/style.js",
+    "jupyterlab_jupyterbook_navigation/labextension/package.json",
 ]
-skip-if-exists = ["jlab_jbook_chapter_navigation/labextension/static/style.js"]
+skip-if-exists = ["jupyterlab_jupyterbook_navigation/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -71,7 +71,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "jlab_jbook_chapter_navigation/labextension"
+build_dir = "jupyterlab_jupyterbook_navigation/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
