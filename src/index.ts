@@ -38,17 +38,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // Attach the `activate` event handler to the widget
     widget.activate = async () => {
-      console.log('Widget shown');
+      console.debug('Widget shown');
 
       // Get the primary file browser used in JupyterLab
       const fileBrowser = fileBrowserFactory.tracker.currentWidget;
 
       // Check if the file browser is available and log if it's not
       if (!fileBrowser) {
-        console.log('File browser widget is null.');
+        console.debug('File browser widget is null.');
       }
       else {
-        console.log('Active file browser widget found.')
+        console.debug('Active file browser widget found.')
       }
 
       // Make the API request and update the widget's content
