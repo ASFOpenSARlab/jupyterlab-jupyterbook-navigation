@@ -91,17 +91,17 @@ def get_toc(cwd):
     if len(toc_pth) > 0 or len(config_pth) > 0:
         toc_pth = str(toc_pth[0])
         toc = parse_toc_yaml(toc_pth)
-        html_toc = f'<p id="toc_title">{str(get_book_title(config_pth[0]))}</p>'
+        html_toc = f'<p id="toc-title">{str(get_book_title(config_pth[0]))}</p>'
         author = str(get_author(config_pth[0]))
         if len(author) > 0:
-            html_toc = f'{html_toc} <p id="toc_author">Author: {author}</p>'
+            html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
         html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd).name)}"
     else:
         html_toc = (
-            f'<p id="toc_title">Not a Jupyter-Book</p>'
-            f'<p id="toc_author">"_toc.yml" and/or "_config.yml" not found in:</p>'
-            f'<p id="toc_author">{Path.cwd()}</p>'
-            f'<p id="toc_author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
+            f'<p id="toc-title">Not a Jupyter-Book</p>'
+            f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in:</p>'
+            f'<p id="toc-author">{Path.cwd()}</p>'
+            f'<p id="toc-author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
         )
 
     return {"data": str(html_toc), "cwd": cwd, "browser_dir": Path(cwd).name}

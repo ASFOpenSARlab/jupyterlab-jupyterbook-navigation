@@ -9,14 +9,14 @@
     color: var(--jp-layout-color3);
 }
 
-#toc_title {
+#toc-title {
     font-size: var(--jp-ui-font-size2);
     font-weight: bold;
     color: var(--jp-jupyter-icon-color);
     padding-left: 15px;
 }
 
-#toc_author {
+#toc-author {
     font-size: var(--jp-ui-font-size1);
     font-weight: bold;
     color: var(--jp-ui-font-color2);
