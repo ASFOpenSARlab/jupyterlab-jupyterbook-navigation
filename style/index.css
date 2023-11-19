@@ -1,23 +1,24 @@
 @import url('base.css');
 
 .jp-Button.toc-button {
-    color: var(--jp-layout-color4);
-    background-color: var(--jp-layout-color1);
+  color: var(--jp-layout-color4);
+  background-color: var(--jp-layout-color1);
 }
+
 .jp-Button.toc-button:hover {
-    color: var(--jp-layout-color3);
+  color: var(--jp-layout-color3);
 }
 
-#toc_title {
-    font-size: var(--jp-ui-font-size2);
-    font-weight: bold;
-    color: var(--jp-jupyter-icon-color);
-    padding-left: 15px;
+#toc-title {
+  font-size: var(--jp-ui-font-size2);
+  font-weight: bold;
+  color: var(--jp-jupyter-icon-color);
+  padding-left: 15px;
 }
 
-#toc_author {
-    font-size: var(--jp-ui-font-size1);
-    font-weight: bold;
-    color: var(--jp-ui-font-color2);
-    padding-left: 15px;
+#toc-author {
+  font-size: var(--jp-ui-font-size1);
+  font-weight: bold;
+  color: var(--jp-ui-font-color2);
+  padding-left: 15px;
 }
