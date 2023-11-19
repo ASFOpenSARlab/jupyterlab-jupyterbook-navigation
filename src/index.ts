@@ -46,9 +46,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       // Check if the file browser is available and log if it's not
       if (!fileBrowser) {
         console.debug('File browser widget is null.');
-      }
-      else {
-        console.debug('Active file browser widget found.')
+      } else {
+        console.debug('Active file browser widget found.');
       }
 
       // Make the API request and update the widget's content
