@@ -33,7 +33,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     widget.title.iconClass = 'jp-NotebookIcon jp-SideBar-tabIcon';
     widget.title.caption = 'Jupyter-Book Table of Contents';
 
-    let summary = document.createElement('p');
+    const summary = document.createElement('p');
     widget.node.appendChild(summary);
 
     // Attach the `activate` event handler to the widget
