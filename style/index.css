@@ -4,6 +4,7 @@
     color: var(--jp-layout-color4);
     background-color: var(--jp-layout-color1);
 }
+
 .jp-Button.toc-button:hover {
     color: var(--jp-layout-color3);
 }
