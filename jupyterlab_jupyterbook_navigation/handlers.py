@@ -1,7 +1,5 @@
 import json
 
-from sphinx_external_toc.parsing import parse_toc_yaml
-
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 from jupyter_server.services.contents.filemanager import FileContentsManager
