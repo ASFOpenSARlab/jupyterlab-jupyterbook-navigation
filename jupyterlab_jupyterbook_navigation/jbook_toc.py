@@ -4,14 +4,6 @@ import yaml
 
 from sphinx_external_toc.parsing import parse_toc_yaml
 
-from jupyter_server.base.handlers import APIHandler
-from jupyter_server.utils import url_path_join
-from jupyter_server.services.contents.filemanager import FileContentsManager
-
-import tornado
-
-from IPython.core.display_functions import display
-
 
 def get_title(file_pth):
     file_pth = Path(file_pth)
