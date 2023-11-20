@@ -57,4 +57,4 @@ _("jupyter", "labextension", "list")
 print("JupyterLab with jupyterlab_jupyterbook_navigation is ready to run with:\n")
 print("\tjupyter lab\n")
 
-_(sys.executable, "jupyter-book", "create", "JUPYTER-BOOK")
+_("jupyter-book", "create", "JUPYTER-BOOK")
