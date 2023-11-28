@@ -21,6 +21,8 @@ def get_title(file_pth):
             for line in lines:
                 if line[:2] == "# ":
                     return line[2:].strip()
+    else:
+        return file_pth
 
 
 def get_book_title(config_pth):
@@ -41,66 +43,94 @@ def get_author(config_pth):
         return f"Exception: {e}"
 
 
-def get_suffix_pth(perhaps_suffixless_pth):
-    if Path(perhaps_suffixless_pth).suffix != "":
-        return perhaps_suffixless_pth
+def get_suffix_pth(perhaps_suffixless_pth, cwd):
+    pth = list(cwd.glob(f"{perhaps_suffixless_pth}*"))
+    if len(pth) > 0:
+        return  pth[0].relative_to(cwd)
     else:
-        pth = Path.cwd().glob(f"{perhaps_suffixless_pth}*")
-        if pth:
-            suffix = str(list(pth)[0].suffix)
-            return f"{perhaps_suffixless_pth}{suffix}"
+        return perhaps_suffixless_pth
+
+def get_sub_section(parts, cwd, level=1, html=''):
+    cwd = Path(cwd)
+    for k in parts:
+        if type(k) != dict:
+            return html
+        if 'sections' in k.keys():
+            pth = get_suffix_pth(k['file'], cwd)
+            title = get_title(cwd/pth)
+            html = f'''{html}
+            <div>
+                <button class="jp-Button toc-button"style="display: inline-block;" data-file-path="{pth}">{title}</button>
+                <button onclick="toggleList(this)" class="jp-Button toc-button" style="display: inline-block;"><i class="fa fa-chevron-down"></i></button>
+            </div>
+            <div style="display: none;">
+            '''
+
+            html = get_sub_section(k['sections'], cwd, level=level+1, html=html)
+            html = f'{html}\n</div>'
+        elif 'file' in k.keys():
+            pth = get_suffix_pth(k['file'], cwd)
+            title = get_title(cwd/pth)
+            if title:
+                html = f'{html} <button class="jp-Button toc-button" style="display: block;" data-file-path="{pth}">{title}</button>'
+            else:
+                html = f'{html} <button class="jp-Button toc-button" style="display: block;" data-file-path="{pth}">{k['file']}</button>'
+
+        elif 'url' in k.keys():
+            html = f'{html} <a href="{k['url']}" style="display: block;">{k['title']}</a>'
+        elif 'glob' in k.keys():
+            pass
+    return html
 
 
 def toc_to_html(toc, cwd):
-    """
-    Builds a Jupyter-Book Table of Contents as an unordered HTML list.
-    Links to source files for viewing in JupyterLab (not a built html book)
+    html = """<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome stylesheet -->
+    <script>
+        function toggleList(button) {
+            var list = button.parentElement.nextElementSibling;
 
-    TODO: add ordered list support for numbered TOCs
-    """
-    cwd = Path(cwd)
-    html = f"<ul>"
-    for i, tree in enumerate(toc.root.subtrees):
-        html = f"{html} <li><b>{tree.caption}</b></li><ul>"
-        for j, branch in enumerate(tree.items):
-            title = get_title(cwd / branch)
-            branch_pth = get_suffix_pth(cwd / branch)
-            if title:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{branch_pth}">{title}</button></li>'
-            else:
-                html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)}" data-file-path="{branch_pth}">{branch}</button></li>'
-            if len(toc[branch].subtrees) > 0:
-                html = f"{html} <ul>"
-                for twig in toc[branch].subtrees:
-                    for k, leaf in enumerate(twig.items):
-                        title = get_title(cwd / leaf)
-                        leaf_pth = get_suffix_pth(cwd / leaf)
-                        if title:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{leaf_pth}">{title}</button></li>'
-                        else:
-                            html = f'{html} <li><button class="jp-Button toc-button" data-index="{((i+1)*1000)+((j+1)*100)+k+1}" data-file-path="{leaf_pth}">{leaf}</button></li>'
-                html = f"{html} </ul>"
-        html = f"{html} </ul>"
-    html = f"{html} </ul>"
+            if (list.style.display === "none") {
+                list.style.display = "block";
+                button.innerHTML = "<i class='fa fa-chevron-up'></i>";
+            } else {
+                list.style.display = "none";
+                button.innerHTML = "<i class='fa fa-chevron-down'></i>";
+            }
+        }
+    </script>"""
+
+    html = f'{html}\n<ul>'
+
+    for chapter in toc['parts']:
+        html = f'{html}\n<p class="caption" role="heading"><span class="caption-text"><b>\n{chapter["caption"]}\n</b></span>\n</p>'
+        try:
+            html = f"{html}\n{get_sub_section(chapter['chapters'], cwd)}"
+        except Exception as e:
+            return str(e)
+    html = f'{html}\n</ul>'
     return html
-
 
 def get_toc(cwd):
     toc_pth = list(Path(cwd).glob("_toc.yml"))
     config_pth = list(Path(cwd).glob("_config.yml"))
     if len(toc_pth) > 0 or len(config_pth) > 0:
         toc_pth = str(toc_pth[0])
-        toc = parse_toc_yaml(toc_pth)
+
+
+        with open(toc_pth, 'r') as f:
+            toc = yaml.safe_load(f)
+
+        # toc = parse_toc_yaml(toc_pth)
         html_toc = f'<p id="toc-title">{str(get_book_title(config_pth[0]))}</p>'
         author = str(get_author(config_pth[0]))
         if len(author) > 0:
             html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
-        html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd).name)}"
+        html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd))}"
     else:
         html_toc = (
             f'<p id="toc-title">Not a Jupyter-Book</p>'
             f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in:</p>'
-            f'<p id="toc-author">{Path.cwd()}</p>'
+            f'<p id="toc-author">{Path(cwd)}</p>'
             f'<p id="toc-author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
         )
 
