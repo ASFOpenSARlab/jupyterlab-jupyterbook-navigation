@@ -77,7 +77,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 export default plugin;
 
 function addClickListenerToChevron() {
-
   const buttons = document.querySelectorAll('.toc-chevron');
   buttons.forEach(buttonElement => {
     // Perform a type assertion here
@@ -92,17 +91,14 @@ function addClickListenerToChevron() {
 function toggleList(button: HTMLButtonElement): void {
   const list = button.parentElement?.nextElementSibling as HTMLElement; // Type assertion for HTMLElement
 
-  if (list.style.display === "none") {
-      list.style.display = "block";
-      button.innerHTML = "<i class='fa fa-chevron-up toc-chevron'></i>";
+  if (list.style.display === 'none') {
+    list.style.display = 'block';
+    button.innerHTML = "<i class='fa fa-chevron-up toc-chevron'></i>";
   } else {
-      list.style.display = "none";
-      button.innerHTML = "<i class='fa fa-chevron-down toc-chevron'></i>";
+    list.style.display = 'none';
+    button.innerHTML = "<i class='fa fa-chevron-down toc-chevron'></i>";
   }
 }
-
-
-
 
 function addClickListenerToButtons(
   fileBrowser: FileBrowser | null,
@@ -132,11 +128,13 @@ function addClickListenerToButtons(
 
       const filePath = button.getAttribute('data-file-path');
       if (typeof filePath === 'string') {
-        if (filePath.includes(".md")) {
-          docManager.openOrReveal(browser_path+"/"+filePath, 'Markdown Preview');
-        }
-        else {
-          docManager.openOrReveal(browser_path+"/"+filePath);
+        if (filePath.includes('.md')) {
+          docManager.openOrReveal(
+            browser_path + '/' + filePath,
+            'Markdown Preview'
+          );
+        } else {
+          docManager.openOrReveal(browser_path + '/' + filePath);
         }
       }
     });
