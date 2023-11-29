@@ -61,7 +61,7 @@ def get_sub_section(parts, cwd, level=1, html=''):
             html = f'''{html}
             <div>
                 <button class="jp-Button toc-button"style="display: inline-block;" data-file-path="{pth}">{title}</button>
-                <button onclick="toggleList(this)" class="jp-Button toc-button" style="display: inline-block;"><i class="fa fa-chevron-down"></i></button>
+                <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
             </div>
             <div style="display: none;">
             '''
@@ -84,22 +84,7 @@ def get_sub_section(parts, cwd, level=1, html=''):
 
 
 def toc_to_html(toc, cwd):
-    html = """<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome stylesheet -->
-    <script>
-        function toggleList(button) {
-            var list = button.parentElement.nextElementSibling;
-
-            if (list.style.display === "none") {
-                list.style.display = "block";
-                button.innerHTML = "<i class='fa fa-chevron-up'></i>";
-            } else {
-                list.style.display = "none";
-                button.innerHTML = "<i class='fa fa-chevron-down'></i>";
-            }
-        }
-    </script>"""
-
-    html = f'{html}\n<ul>'
+    html = f'\n<ul>'
 
     for chapter in toc['parts']:
         html = f'{html}\n<p class="caption" role="heading"><span class="caption-text"><b>\n{chapter["caption"]}\n</b></span>\n</p>'
@@ -120,12 +105,11 @@ def get_toc(cwd):
         with open(toc_pth, 'r') as f:
             toc = yaml.safe_load(f)
 
-        # toc = parse_toc_yaml(toc_pth)
         html_toc = f'<p id="toc-title">{str(get_book_title(config_pth[0]))}</p>'
         author = str(get_author(config_pth[0]))
         if len(author) > 0:
             html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
-        html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd))}"
+        html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd))} </div>"
     else:
         html_toc = (
             f'<p id="toc-title">Not a Jupyter-Book</p>'

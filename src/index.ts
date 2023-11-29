@@ -57,6 +57,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         summary.innerHTML = data['data'];
         // Add the button event listener after the widget's content is updated
         addClickListenerToButtons(fileBrowser, docManager);
+        addClickListenerToChevron();
       } catch (reason) {
         console.error(
           `The jupyterlab_jupyterbook_navigation server extension appears to be missing.\n${reason}`
@@ -74,6 +75,35 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
 export default plugin;
 
+
+function addClickListenerToChevron() {
+
+  const buttons = document.querySelectorAll('.toc-chevron');
+  buttons.forEach(buttonElement => {
+    // Perform a type assertion here
+    const button = buttonElement as HTMLButtonElement;
+    button.addEventListener('click', (event: Event) => {
+      console.log(`Button clicked`);
+      toggleList(button);
+    });
+  });
+}
+
+function toggleList(button: HTMLButtonElement): void {
+  const list = button.parentElement?.nextElementSibling as HTMLElement; // Type assertion for HTMLElement
+
+  if (list.style.display === "none") {
+      list.style.display = "block";
+      button.innerHTML = "<i class='fa fa-chevron-up toc-chevron'></i>";
+  } else {
+      list.style.display = "none";
+      button.innerHTML = "<i class='fa fa-chevron-down toc-chevron'></i>";
+  }
+}
+
+
+
+
 function addClickListenerToButtons(
   fileBrowser: FileBrowser | null,
   docManager: IDocumentManager
@@ -81,8 +111,7 @@ function addClickListenerToButtons(
   const buttons = document.querySelectorAll('.toc-button');
   buttons.forEach(button => {
     button.addEventListener('click', (event: Event) => {
-      const index = button.getAttribute('data-index');
-      console.log(`Button ${index} clicked`);
+      console.log(`Button clicked`);
 
       // Check if the file browser is available
       if (!fileBrowser) {

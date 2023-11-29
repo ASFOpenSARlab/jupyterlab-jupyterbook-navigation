@@ -9,6 +9,22 @@
   color: var(--jp-layout-color3);
 }
 
+.tb-level1 {
+  padding-left: 12px;
+}
+
+.tb-level2 {
+  padding-left: 24px;
+}
+
+.tb-level3 {
+  padding-left: 36px;
+}
+
+.tb-level4 {
+  padding-left: 48px;
+}
+
 #toc-title {
   font-size: var(--jp-ui-font-size2);
   font-weight: bold;
