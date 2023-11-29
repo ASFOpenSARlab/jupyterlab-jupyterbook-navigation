@@ -9,6 +9,16 @@
   color: var(--jp-layout-color3);
 }
 
+.jp-Button.toc-chevron {
+  color: var(--jp-layout-color4);
+  background-color: var(--jp-layout-color1);
+  padding-left: 6px;
+}
+
+.jp-Button.toc-chevron:hover {
+  color: var(--jp-layout-color3);
+}
+
 .tb-level1 {
   padding-left: 12px;
 }
@@ -23,6 +33,14 @@
 
 .tb-level4 {
   padding-left: 48px;
+}
+
+.jbook-icon {
+  background-image: url('jbook_icon.svg');
+}
+
+.jbook-icon svg g path {
+  display: none;
 }
 
 #toc-title {

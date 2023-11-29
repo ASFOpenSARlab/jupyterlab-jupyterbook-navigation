@@ -60,7 +60,7 @@ def get_sub_section(parts, cwd, level=1, html=''):
             title = get_title(cwd/pth)
             html = f'''{html}
             <div>
-                <button class="jp-Button toc-button"style="display: inline-block;" data-file-path="{pth}">{title}</button>
+                <button class="jp-Button toc-button tb-level{level}"style="display: inline-block;" data-file-path="{str(pth)}">{title}</button>
                 <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
             </div>
             <div style="display: none;">
@@ -72,12 +72,12 @@ def get_sub_section(parts, cwd, level=1, html=''):
             pth = get_suffix_pth(k['file'], cwd)
             title = get_title(cwd/pth)
             if title:
-                html = f'{html} <button class="jp-Button toc-button" style="display: block;" data-file-path="{pth}">{title}</button>'
+                html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{title}</button>'
             else:
-                html = f'{html} <button class="jp-Button toc-button" style="display: block;" data-file-path="{pth}">{k['file']}</button>'
+                html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{k['file']}</button>'
 
         elif 'url' in k.keys():
-            html = f'{html} <a href="{k['url']}" style="display: block;">{k['title']}</a>'
+            html = f'{html} <a class="tb-level{level}" href="{k['url']}" style="display: block;">{k['title']}</a>'
         elif 'glob' in k.keys():
             pass
     return html

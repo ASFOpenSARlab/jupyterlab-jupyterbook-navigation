@@ -30,7 +30,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Create the widget only once
     const widget = new Widget();
     widget.id = '@jupyterlab-sidepanel/jupyterbook-toc';
-    widget.title.iconClass = 'jp-NotebookIcon jp-SideBar-tabIcon';
+    // widget.title.iconClass = 'jp-NotebookIcon jp-SideBar-tabIcon';
+    widget.title.iconClass = 'jbook-icon jp-SideBar-tabIcon';
+    widget.title.className = 'jbook-tab';
     widget.title.caption = 'Jupyter-Book Table of Contents';
 
     const summary = document.createElement('p');
@@ -68,13 +70,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Add the widget to the sidebar
     shell.add(widget, 'left', { rank: 400 });
 
-    // Initially trigger the widget's activation
     widget.activate();
   }
 };
 
 export default plugin;
-
 
 function addClickListenerToChevron() {
 
@@ -128,10 +128,16 @@ function addClickListenerToButtons(
       }
       // If all checks pass, log the current directory
       console.log(`Current directory: ${fileBrowser.model.path}`);
+      const browser_path = fileBrowser.model.path;
 
       const filePath = button.getAttribute('data-file-path');
       if (typeof filePath === 'string') {
-        docManager.openOrReveal(filePath);
+        if (filePath.includes(".md")) {
+          docManager.openOrReveal(browser_path+"/"+filePath, 'Markdown Preview');
+        }
+        else {
+          docManager.openOrReveal(browser_path+"/"+filePath);
+        }
       }
     });
   });

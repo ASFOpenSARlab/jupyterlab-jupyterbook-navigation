@@ -11,7 +11,7 @@ import { ServerConnection } from '@jupyterlab/services';
  */
 export async function requestAPI<T>(
   endPoint = '',
-  browser_dir = '', // New parameter
+  browser_dir = '',
   init: RequestInit = {}
 ): Promise<T> {
   // Make request to Jupyter API
