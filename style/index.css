@@ -56,3 +56,7 @@
   color: var(--jp-ui-font-color2);
   padding-left: 15px;
 }
+
+div.lm-Widget[id='@jupyterlab-sidepanel/jupyterbook-toc'] {
+  overflow-y: auto;
+}
