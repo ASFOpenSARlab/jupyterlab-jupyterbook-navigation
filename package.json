@@ -57,7 +57,6 @@
     "dependencies": {
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
-        "gyp": "^0.5.0",
         "webpack": "^5.89.0"
     },
     "devDependencies": {
