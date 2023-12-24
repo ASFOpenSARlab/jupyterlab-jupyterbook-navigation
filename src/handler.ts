@@ -1,5 +1,5 @@
-import { URLExt } from '@jupyterlab/coreutils';
-import { ServerConnection } from '@jupyterlab/services';
+import { URLExt } from "@jupyterlab/coreutils";
+import { ServerConnection } from "@jupyterlab/services";
 
 /**
  * Call the API extension
@@ -10,15 +10,15 @@ import { ServerConnection } from '@jupyterlab/services';
  * @returns The response body interpreted as JSON
  */
 export async function requestAPI<T>(
-  endPoint = '',
-  browser_dir = '',
+  endPoint = "",
+  browser_dir = "",
   init: RequestInit = {}
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();
   let requestUrl = URLExt.join(
     settings.baseUrl,
-    'jupyterlab-jupyterbook-navigation', // API Namespace
+    "jupyterlab-jupyterbook-navigation", // API Namespace
     endPoint
   );
 
@@ -40,7 +40,7 @@ export async function requestAPI<T>(
     try {
       data = JSON.parse(data);
     } catch (error) {
-      console.log('Not a JSON response body.', response);
+      console.log("Not a JSON response body.", response);
     }
   }
 
