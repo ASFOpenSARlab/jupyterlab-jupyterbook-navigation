@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation",
+    "homepage": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation",
     "bugs": {
-        "url": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/issues"
+        "url": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/issues"
     },
     "license": "BSD-3-Clause",
     "author": {
@@ -25,7 +25,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation.git"
+        "url": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
@@ -159,14 +159,7 @@
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-use-before-define": "off",
-            "@typescript-eslint/quotes": [
-                "error",
-                "single",
-                {
-                    "avoidEscape": true,
-                    "allowTemplateLiterals": false
-                }
-            ],
+            "@typescript-eslint/quotes": "off",
             "curly": [
                 "error",
                 "all"
@@ -176,7 +169,7 @@
         }
     },
     "prettier": {
-        "singleQuote": true,
+        "singleQuote": false,
         "trailingComma": "none",
         "arrowParens": "avoid",
         "endOfLine": "auto",
