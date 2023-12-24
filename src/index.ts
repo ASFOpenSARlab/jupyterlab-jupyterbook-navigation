@@ -93,10 +93,10 @@ function toggleList(button: HTMLButtonElement): void {
 
   if (list.style.display === 'none') {
     list.style.display = 'block';
-    button.innerHTML = "<i class='fa fa-chevron-up toc-chevron'></i>";
+    button.innerHTML = '<i class="fa fa-chevron-up toc-chevron"></i>';
   } else {
     list.style.display = 'none';
-    button.innerHTML = "<i class='fa fa-chevron-down toc-chevron'></i>";
+    button.innerHTML = '<i class="fa fa-chevron-down toc-chevron"></i>';
   }
 }
 
