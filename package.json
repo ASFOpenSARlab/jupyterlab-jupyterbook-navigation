@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation",
+    "homepage": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation",
     "bugs": {
-        "url": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/issues"
+        "url": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/issues"
     },
     "license": "BSD-3-Clause",
     "author": {
@@ -25,7 +25,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation.git"
+        "url": "https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",

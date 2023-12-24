@@ -10,6 +10,6 @@ labextension_name: jupyterlab-jupyterbook-navigation
 project_short_description: A JupyterLab extension that mimics jupyter-book chapter
     navigation on an un-built, cloned jupyter book in JupyterLab.
 python_name: jupyterlab_jupyterbook_navigation
-repository: https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation
+repository: https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation
 test: true
 
