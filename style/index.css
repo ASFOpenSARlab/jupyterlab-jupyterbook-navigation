@@ -1,4 +1,4 @@
-@import url('base.css');
+@import url("base.css");
 
 .jp-Button.toc-button {
   color: var(--jp-layout-color4);
@@ -36,7 +36,7 @@
 }
 
 .jbook-icon {
-  background-image: url('jbook_icon.svg');
+  background-image: url("jbook_icon.svg");
 }
 
 .jbook-icon svg g path {
@@ -57,6 +57,6 @@
   padding-left: 15px;
 }
 
-div.lm-Widget[id='@jupyterlab-sidepanel/jupyterbook-toc'] {
+div.lm-Widget[id="@jupyterlab-sidepanel/jupyterbook-toc"] {
   overflow-y: auto;
 }
