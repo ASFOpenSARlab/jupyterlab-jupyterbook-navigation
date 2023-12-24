@@ -42,8 +42,11 @@
         "eslint": "jlpm eslint:check --fix",
         "eslint:check": "eslint . --cache --ext .ts,.tsx",
         "install:extension": "jlpm build",
-        "lint": "jlpm stylelint && jlpm eslint",
-        "lint:check": "jlpm stylelint:check && jlpm eslint:check",
+        "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+        "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+        "prettier": "jlpm prettier:base --write --list-different",
+        "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+        "prettier:check": "jlpm prettier:base --check",
         "stylelint": "jlpm stylelint:check --fix",
         "stylelint:check": "stylelint --cache \"style/**/*.css\"",
         "test": "jest --coverage",
@@ -173,7 +176,7 @@
         }
     },
     "prettier": {
-        "singleQuote": true,
+        "singleQuote": false,
         "trailingComma": "none",
         "arrowParens": "avoid",
         "endOfLine": "auto",
