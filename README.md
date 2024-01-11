@@ -5,9 +5,9 @@
 A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
 
 > [!WARNING]
-> This package is currently in a pre-alpha stage. Please be aware of the following:
-> 1. **Expect Significant Changes:** The software is still under heavy development. Features, functionality, and the overall design may change significantly in future updates.
-> 1. **Limited Functionality and Correctness:** There are no guarantees of full functionality or correctness. The software may contain bugs and incomplete features.
+> This package is currently in a pre-alpha stage:
+> 1. **Expect Significant Changes:** Features, functionality, and the overall design may change significantly in future updates.
+> 1. **Limited Functionality and Correctness:** There are no guarantees of full functionality or correctness.
 > 1. **Use at Your Own Risk:** Given its early stage of development, users should exercise caution when integrating this package into critical systems.
 
 This extension is composed of a Python package named `jupyterlab_jupyterbook_navigation`
