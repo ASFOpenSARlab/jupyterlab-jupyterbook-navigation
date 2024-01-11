@@ -46,70 +46,95 @@ def get_author(config_pth):
 def get_suffix_pth(perhaps_suffixless_pth, cwd):
     pth = list(cwd.glob(f"{perhaps_suffixless_pth}*"))
     if len(pth) > 0:
-        return  pth[0].relative_to(cwd)
+        return pth[0].relative_to(cwd)
     else:
         return perhaps_suffixless_pth
 
-def get_sub_section(parts, cwd, level=1, html=''):
+
+def get_sub_section(parts, cwd, level=1, html=""):
     cwd = Path(cwd)
     for k in parts:
         if type(k) != dict:
             return html
-        if 'sections' in k.keys():
-            pth = get_suffix_pth(k['file'], cwd)
-            title = get_title(cwd/pth)
-            html = f'''{html}
+        if "sections" in k.keys():
+            pth = get_suffix_pth(k["file"], cwd)
+            title = get_title(cwd / pth)
+            html = f"""{html}
             <div>
                 <button class="jp-Button toc-button tb-level{level}"style="display: inline-block;" data-file-path="{str(pth)}">{title}</button>
                 <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
             </div>
             <div style="display: none;">
-            '''
+            """
 
-            html = get_sub_section(k['sections'], cwd, level=level+1, html=html)
-            html = f'{html}\n</div>'
-        elif 'file' in k.keys():
-            pth = get_suffix_pth(k['file'], cwd)
-            title = get_title(cwd/pth)
+            html = get_sub_section(k["sections"], cwd, level=level + 1, html=html)
+            html = f"{html}\n</div>"
+        elif "file" in k.keys():
+            pth = get_suffix_pth(k["file"], cwd)
+            title = get_title(cwd / pth)
             if title:
                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{title}</button>'
             else:
                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{k["file"]}</button>'
 
-        elif 'url' in k.keys():
-            html = f'{html} <a class="tb-level{level}" href="{k["url"]}" style="display: block;">{k["title"]}</a>'
-        elif 'glob' in k.keys():
+        elif "url" in k.keys():
+            html = f'{html} <a class="toc-link tb-level{level}" href="{k["url"]}" target="_blank" rel="noopener noreferrer" style="display: block;">{k["title"]}</a>'
+        elif "glob" in k.keys():
             pass
     return html
 
 
 def toc_to_html(toc, cwd):
-    html = f'\n<ul>'
+    html = f"\n<ul>"
 
-    for chapter in toc["parts"]:
-        html = f'{html}\n<p class="caption" role="heading"><span class="caption-text"><b>\n{chapter["caption"]}\n</b></span>\n</p>'
+    if "parts" in toc.keys():
+        for chapter in toc["parts"]:
+            html = f'{html}\n<p class="caption" role="heading"><span class="caption-text"><b>\n{chapter["caption"]}\n</b></span>\n</p>'
+            try:
+                html = f'{html}\n{get_sub_section(chapter["chapters"], cwd)}'
+            except Exception as e:
+                return str(e)
+    else:
         try:
-            html = f'{html}\n{get_sub_section(chapter["chapters"], cwd)}'
+            html = f'{html}\n{get_sub_section(toc["chapters"], cwd)}'
         except Exception as e:
             return str(e)
-    html = f'{html}\n</ul>'
+
+    html = f"{html}\n</ul>"
     return html
 
+
+def find_toc_in_parents(cwd):
+    current_dir = Path(cwd)
+    toc_pattern = "_toc.yml"
+    while True:
+        toc_pth = list(current_dir.glob(toc_pattern))
+        if toc_pth and len(toc_pth) == 1:
+            return toc_pth[0]
+        if current_dir == Path.home():
+            break
+        current_dir = current_dir.parent
+    return None
+
+
 def get_toc(cwd):
-    toc_pth = list(Path(cwd).glob("_toc.yml"))
-    config_pth = list(Path(cwd).glob("_config.yml"))
-    if len(toc_pth) > 0 or len(config_pth) > 0:
-        toc_pth = str(toc_pth[0])
+    toc_pth = find_toc_in_parents(cwd)
+    if toc_pth:
+        config_pth = list(toc_pth.parent.glob("_config.yml"))
+        if config_pth and len(config_pth) == 1:
+            config_pth = config_pth[0]
 
+    if toc_pth and config_pth:
+        toc_pth = str(toc_pth)
 
-        with open(toc_pth, 'r') as f:
+        with open(toc_pth, "r") as f:
             toc = yaml.safe_load(f)
 
-        html_toc = f'<p id="toc-title">{str(get_book_title(config_pth[0]))}</p>'
-        author = str(get_author(config_pth[0]))
+        html_toc = f'<p id="toc-title">{str(get_book_title(config_pth))}</p>'
+        author = str(get_author(config_pth))
         if len(author) > 0:
             html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
-        html_toc = f"{html_toc} {toc_to_html(toc, Path(cwd))} </div>"
+        html_toc = f"{html_toc} {toc_to_html(toc, Path(toc_pth).parent)} </div>"
     else:
         html_toc = (
             f'<p id="toc-title">Not a Jupyter-Book</p>'

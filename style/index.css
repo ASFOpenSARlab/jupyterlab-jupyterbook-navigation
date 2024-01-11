@@ -15,6 +15,10 @@
   padding-left: 6px;
 }
 
+.toc-link {
+  color: var(--jp-content-link-color);
+}
+
 .jp-Button.toc-chevron:hover {
   color: var(--jp-layout-color3);
 }
