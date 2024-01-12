@@ -107,13 +107,15 @@ def toc_to_html(toc, cwd):
 def find_toc_in_parents(cwd):
     current_dir = Path(cwd)
     toc_pattern = "_toc.yml"
-    while True:
+    depth = 0  # prevent an endless loop in environments where Path.home() behaves in unexpected ways
+    while depth < 20:
         toc_pth = list(current_dir.glob(toc_pattern))
         if toc_pth and len(toc_pth) == 1:
             return toc_pth[0]
         if current_dir == Path.home():
             break
         current_dir = current_dir.parent
+        depth += 1
     return None
 
 
