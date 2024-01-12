@@ -6,6 +6,7 @@ A JupyterLab server extension that provides Jupyter-Book navigation via a sidepa
 
 > [!WARNING]
 > This package is currently in a pre-alpha stage:
+>
 > 1. **Expect Significant Changes:** Features, functionality, and the overall design may change significantly in future updates.
 > 1. **Limited Functionality and Correctness:** There are no guarantees of full functionality or correctness.
 > 1. **Use at Your Own Risk:** Given its early stage of development, users should exercise caution when integrating this package into critical systems.
