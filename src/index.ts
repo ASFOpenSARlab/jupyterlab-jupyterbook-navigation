@@ -100,6 +100,28 @@ function toggleList(button: HTMLButtonElement): void {
   }
 }
 
+function combinePaths(fullPath: string, relativePath: string): string {
+  const fullPathSegments = fullPath.split("/");
+  const relativePathSegments = relativePath.split("/");
+
+  let firstCommonSegmentIndex = -1;
+  for (const segment of relativePathSegments) {
+    const index = fullPathSegments.indexOf(segment);
+    if (index !== -1) {
+      firstCommonSegmentIndex = index;
+      break;
+    }
+  }
+  if (firstCommonSegmentIndex === -1) {
+    return "";
+  }
+
+  const reconstructedPath = fullPathSegments
+    .slice(firstCommonSegmentIndex)
+    .join("/");
+  return reconstructedPath;
+}
+
 function addClickListenerToButtons(
   fileBrowser: FileBrowser | null,
   docManager: IDocumentManager
@@ -109,32 +131,43 @@ function addClickListenerToButtons(
     button.addEventListener("click", (event: Event) => {
       console.log(`Button clicked`);
 
-      // Check if the file browser is available
       if (!fileBrowser) {
-        console.error("File browser is not available.");
+        console.error("File browser not found");
         return;
       }
 
-      // Check if the file browser's path is a valid string
+      const toc_div = button.closest(".jbook-toc");
+      if (!toc_div) {
+        console.error("jbook-toc div not found");
+        return;
+      }
+
+      const toc_dir = toc_div.getAttribute("data-toc-dir");
+      if (typeof toc_dir !== "string") {
+        console.error(`data-toc-dir attribute loaded`);
+        return;
+      }
+
       if (typeof fileBrowser.model.path !== "string") {
         console.error(
           `Invalid path: The current path is either not set or not a string. Path: ${fileBrowser.model.path}`
         );
         return;
       }
-      // If all checks pass, log the current directory
       console.log(`Current directory: ${fileBrowser.model.path}`);
       const browser_path = fileBrowser.model.path;
 
       const filePath = button.getAttribute("data-file-path");
       if (typeof filePath === "string") {
+        const relativePath = combinePaths(toc_dir, browser_path);
+
         if (filePath.includes(".md")) {
           docManager.openOrReveal(
-            browser_path + "/" + filePath,
+            relativePath + "/" + filePath,
             "Markdown Preview"
           );
         } else {
-          docManager.openOrReveal(browser_path + "/" + filePath);
+          docManager.openOrReveal(relativePath + "/" + filePath);
         }
       }
     });

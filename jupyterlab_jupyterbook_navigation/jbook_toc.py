@@ -127,20 +127,18 @@ def get_toc(cwd):
             config_pth = config_pth[0]
 
     if toc_pth and config_pth:
-        toc_pth = str(toc_pth)
-
         with open(toc_pth, "r") as f:
             toc = yaml.safe_load(f)
 
-        html_toc = f'<p id="toc-title">{str(get_book_title(config_pth))}</p>'
+        html_toc = f'<div class="jbook-toc" data-toc-dir="{toc_pth.parent}"><p id="toc-title">{str(get_book_title(config_pth))}</p>'
         author = str(get_author(config_pth))
         if len(author) > 0:
             html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
-        html_toc = f"{html_toc} {toc_to_html(toc, Path(toc_pth).parent)} </div>"
+        html_toc = f"{html_toc} {toc_to_html(toc, toc_pth.parent)} </div>"
     else:
         html_toc = (
             f'<p id="toc-title">Not a Jupyter-Book</p>'
-            f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in:</p>'
+            f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in or above:</p>'
             f'<p id="toc-author">{Path(cwd)}</p>'
             f'<p id="toc-author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
         )
