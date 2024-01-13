@@ -51,6 +51,39 @@ def get_suffix_pth(perhaps_suffixless_pth, cwd):
         return perhaps_suffixless_pth
 
 
+# def get_sub_section(parts, cwd, level=1, html=""):
+#     cwd = Path(cwd)
+#     for k in parts:
+#         if type(k) != dict:
+#             return html
+#         if "sections" in k.keys():
+#             pth = get_suffix_pth(k["file"], cwd)
+#             title = get_title(cwd / pth)
+#             html = f"""{html}
+#             <div>
+#                 <button class="jp-Button toc-button tb-level{level}"style="display: inline-block;" data-file-path="{str(pth)}">{title}</button>
+#                 <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
+#             </div>
+#             <div style="display: none;">
+#             """
+
+#             html = get_sub_section(k["sections"], cwd, level=level + 1, html=html)
+#             html = f"{html}\n</div>"
+#         elif "file" in k.keys():
+#             pth = get_suffix_pth(k["file"], cwd)
+#             title = get_title(cwd / pth)
+#             if title:
+#                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{title}</button>'
+#             else:
+#                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{k["file"]}</button>'
+
+#         elif "url" in k.keys():
+#             html = f'{html} <a class="toc-link tb-level{level}" href="{k["url"]}" target="_blank" rel="noopener noreferrer" style="display: block;">{k["title"]}</a>'
+#         elif "glob" in k.keys():
+#             pass
+#     return html
+
+
 def get_sub_section(parts, cwd, level=1, html=""):
     cwd = Path(cwd)
     for k in parts:
@@ -127,20 +160,18 @@ def get_toc(cwd):
             config_pth = config_pth[0]
 
     if toc_pth and config_pth:
-        toc_pth = str(toc_pth)
-
         with open(toc_pth, "r") as f:
             toc = yaml.safe_load(f)
 
-        html_toc = f'<p id="toc-title">{str(get_book_title(config_pth))}</p>'
+        html_toc = f'<div class="jbook-toc" data-toc-dir="{toc_pth.parent}"><p id="toc-title">{str(get_book_title(config_pth))}</p>'
         author = str(get_author(config_pth))
         if len(author) > 0:
             html_toc = f'{html_toc} <p id="toc-author">Author: {author}</p>'
-        html_toc = f"{html_toc} {toc_to_html(toc, Path(toc_pth).parent)} </div>"
+        html_toc = f"{html_toc} {toc_to_html(toc, toc_pth.parent)} </div>"
     else:
         html_toc = (
             f'<p id="toc-title">Not a Jupyter-Book</p>'
-            f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in:</p>'
+            f'<p id="toc-author">"_toc.yml" and/or "_config.yml" not found in or above:</p>'
             f'<p id="toc-author">{Path(cwd)}</p>'
             f'<p id="toc-author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>'
         )
