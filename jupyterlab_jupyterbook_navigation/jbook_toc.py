@@ -51,39 +51,6 @@ def get_suffix_pth(perhaps_suffixless_pth, cwd):
         return perhaps_suffixless_pth
 
 
-# def get_sub_section(parts, cwd, level=1, html=""):
-#     cwd = Path(cwd)
-#     for k in parts:
-#         if type(k) != dict:
-#             return html
-#         if "sections" in k.keys():
-#             pth = get_suffix_pth(k["file"], cwd)
-#             title = get_title(cwd / pth)
-#             html = f"""{html}
-#             <div>
-#                 <button class="jp-Button toc-button tb-level{level}"style="display: inline-block;" data-file-path="{str(pth)}">{title}</button>
-#                 <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
-#             </div>
-#             <div style="display: none;">
-#             """
-
-#             html = get_sub_section(k["sections"], cwd, level=level + 1, html=html)
-#             html = f"{html}\n</div>"
-#         elif "file" in k.keys():
-#             pth = get_suffix_pth(k["file"], cwd)
-#             title = get_title(cwd / pth)
-#             if title:
-#                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{title}</button>'
-#             else:
-#                 html = f'{html} <button class="jp-Button toc-button tb-level{level}" style="display: block;" data-file-path="{str(pth)}">{k["file"]}</button>'
-
-#         elif "url" in k.keys():
-#             html = f'{html} <a class="toc-link tb-level{level}" href="{k["url"]}" target="_blank" rel="noopener noreferrer" style="display: block;">{k["title"]}</a>'
-#         elif "glob" in k.keys():
-#             pass
-#     return html
-
-
 def get_sub_section(parts, cwd, level=1, html=""):
     cwd = Path(cwd)
     for k in parts:
