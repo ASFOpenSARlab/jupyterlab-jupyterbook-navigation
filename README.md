@@ -2,6 +2,10 @@
 
 [![Github Actions Status](https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/main?urlpath=lab)
 
+
+https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/assets/37909088/3aa48f43-dfeb-466d-8f33-afc10f333f50
+
+
 A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
 
 > [!WARNING]
