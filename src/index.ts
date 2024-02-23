@@ -13,6 +13,7 @@ import { IFileBrowserFactory } from "@jupyterlab/filebrowser";
 
 import { ServerConnection } from "@jupyterlab/services"
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 const plugin: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab-jupyterbook-navigation:plugin",
@@ -173,6 +174,9 @@ function addClickListenerToButtons(
           docManager.openOrReveal(relativePath + "/" + filePath);
         }
         getTitle(relativePath + "/" + filePath);  // TODO: REMOVE
+        getBookTitle(relativePath + "/_config.yml");
+        getAuthor(relativePath + "/_config.yml");
+        ls(relativePath);
       }
     });
   });
@@ -180,7 +184,7 @@ function addClickListenerToButtons(
 
 // Ported from Python below
 
-async function getFileContents(path: string): Promise<Notebook | String> {
+async function getFileContents(path: string): Promise<Notebook | string> {
   const serverSettings = ServerConnection.makeSettings();
 
   const url = new URL(path, serverSettings.baseUrl + 'api/contents/').href;
@@ -221,7 +225,7 @@ async function getTitle(filePath: string): Promise<string> {
   const suffix = path.extname(filePath);
   if (suffix === '.ipynb') {
     try {
-      const jsonData: Notebook | String = await getFileContents(filePath);
+      const jsonData: Notebook | string = await getFileContents(filePath);
       if (isNotebook(jsonData)) {
         const firstHeaderCell = jsonData.cells.find(cell => cell.cell_type === 'markdown');
         if (firstHeaderCell) {
@@ -237,12 +241,12 @@ async function getTitle(filePath: string): Promise<string> {
   }
 } else if (suffix === '.md') {
     try {
-      const md: Notebook | String = await getFileContents(filePath);     
+      const md: Notebook | string = await getFileContents(filePath);     
       if (!isNotebook(md)) {
         const lines: string[] = md.split("\n");
         for (let line of lines) {
           if (line.slice(0,2) === '# ') {
-            const title: String = line.slice(2);
+            const title: string = line.slice(2);
             console.log(title);
           }
       }
@@ -251,9 +255,82 @@ async function getTitle(filePath: string): Promise<string> {
       console.error('Error reading or parsing Markdown:', error);
   }
 }
-return "";
+return "Error: Unable to parse title header from notebook or markdown";
 }
 
+interface jbookConfig {
+  title: string;
+  author: string;
+  logo: string;
+}
 
+function isJbookConfig(obj: any): obj is jbookConfig {
+  return obj && 
+  typeof obj === 'object' && 
+  obj.title &&
+  obj.author &&
+  obj.logo;
+}
 
+async function getBookTitle(configPath: string): Promise<string> {
+  try {
+    const yamlStr = await getFileContents(configPath);
+
+    if (typeof yamlStr === "string") {
+      const config: unknown = yaml.load(yamlStr);
+      if (isJbookConfig(config)) {
+        return config.title || "Untitled Jupyter Book";
+      } else {
+        console.error("Error: Misconfigured Jupyter Book config.");
+      }
+    }
+  } catch (error) {
+    console.error('Error reading or parsing config:', error);
+  }
+  return "Error: Unable to retrieve book title from _config.yml";
+}
+
+async function getAuthor(configPath: string): Promise<string> {
+  try {
+    const yamlStr = await getFileContents(configPath);
+
+    if (typeof yamlStr === "string") {
+      const config: unknown = yaml.load(yamlStr);
+      if (isJbookConfig(config)) {
+        console.log(config.author || "Anonymous");
+        return config.author || "Anonymous";
+      } else {
+        console.error("Error: Misconfigured Jupyter Book config.");
+      }
+    }
+  } catch (error) {
+    console.error('Error reading or parsing config:', error);
+  }
+  return "Error: Unable to retrieve author from _config.yml";
+}
+
+async function ls(path: string) {
+  const baseUrl = '/api/contents/';
+  const fullPath = `${baseUrl}${path}?content=1`;
+
+  try {
+    const response = await fetch(fullPath, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Error listing directory contents:", error);
+    return null;
+  }
+}
 
