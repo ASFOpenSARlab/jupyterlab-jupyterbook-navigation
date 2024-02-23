@@ -11,6 +11,9 @@ import { FileBrowser } from "@jupyterlab/filebrowser";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 import { IFileBrowserFactory } from "@jupyterlab/filebrowser";
 
+import { ServerConnection } from "@jupyterlab/services"
+import * as path from 'path';
+
 const plugin: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab-jupyterbook-navigation:plugin",
   description:
@@ -169,7 +172,88 @@ function addClickListenerToButtons(
         } else {
           docManager.openOrReveal(relativePath + "/" + filePath);
         }
+        getTitle(relativePath + "/" + filePath);  // TODO: REMOVE
       }
     });
   });
 }
+
+// Ported from Python below
+
+async function getFileContents(path: string): Promise<Notebook | String> {
+  const serverSettings = ServerConnection.makeSettings();
+
+  const url = new URL(path, serverSettings.baseUrl + 'api/contents/').href;
+
+  let response: Response;
+
+  try {
+    // Make the request to the Jupyter server
+    response = await ServerConnection.makeRequest(url, {}, serverSettings);
+  } catch (error) {
+    console.error(`Failed to get file: ${error}`);
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to get file: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.content;
+}
+
+interface Notebook {
+  cells: Cell[];
+}
+
+interface Cell {
+  cell_type: 'markdown';
+  metadata: {};
+  source: string;
+}
+
+function isNotebook(obj: any): obj is Notebook {
+  return obj && typeof obj === 'object' && Array.isArray(obj.cells);
+}
+
+async function getTitle(filePath: string): Promise<string> {
+  const suffix = path.extname(filePath);
+  if (suffix === '.ipynb') {
+    try {
+      const jsonData: Notebook | String = await getFileContents(filePath);
+      if (isNotebook(jsonData)) {
+        const firstHeaderCell = jsonData.cells.find(cell => cell.cell_type === 'markdown');
+        if (firstHeaderCell) {
+          if (firstHeaderCell.source.split("\n")[0].slice(0,2) === '# ') {
+            const title: string  = firstHeaderCell.source.split("\n")[0].slice(2);
+            console.log(title);
+            return title;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error reading or parsing notebook:', error);
+  }
+} else if (suffix === '.md') {
+    try {
+      const md: Notebook | String = await getFileContents(filePath);     
+      if (!isNotebook(md)) {
+        const lines: string[] = md.split("\n");
+        for (let line of lines) {
+          if (line.slice(0,2) === '# ') {
+            const title: String = line.slice(2);
+            console.log(title);
+          }
+      }
+      }
+    } catch (error) {
+      console.error('Error reading or parsing Markdown:', error);
+  }
+}
+return "";
+}
+
+
+
+
