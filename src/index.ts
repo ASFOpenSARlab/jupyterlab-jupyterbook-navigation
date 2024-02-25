@@ -61,7 +61,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
       try {
         const data = await requestAPI<any>("get-toc", fileBrowser?.model.path);
         console.log(data);
-        summary.innerHTML = data["data"];
+
+        let cwd = fileBrowser?.model.path;
+        if (typeof cwd == 'string') {
+          let toc = await getTOC(cwd);
+          summary.innerHTML = toc;
+        }
+
         // Add the button event listener after the widget's content is updated
         addClickListenerToButtons(fileBrowser, docManager);
         addClickListenerToChevron();
@@ -174,11 +180,10 @@ function addClickListenerToButtons(
         } else {
           docManager.openOrReveal(relativePath + "/" + filePath);
         }
-        getTitle(relativePath + "/" + filePath);  // TODO: REMOVE
-        getBookTitle(relativePath + "/_config.yml");
-        getAuthor(relativePath + "/_config.yml");
-        ls(relativePath);
-        findTOCinParents(relativePath);
+        // getTitle(relativePath + "/" + filePath);  // TODO: REMOVE
+        // getBookConfig(relativePath + "/_config.yml");
+        // ls(relativePath);
+        // findTOCinParents(relativePath);
       }
     });
   });
@@ -223,8 +228,12 @@ function isNotebook(obj: any): obj is Notebook {
   return obj && typeof obj === 'object' && Array.isArray(obj.cells);
 }
 
-async function getTitle(filePath: string): Promise<string> {
+async function getTitle(filePath: string): Promise<string|null> {
   const suffix = path.extname(filePath);
+
+  console.log("suffix: ", suffix);
+  console.log("filePath: ", filePath);
+
   if (suffix === '.ipynb') {
     try {
       const jsonData: Notebook | string = await getFileContents(filePath);
@@ -243,13 +252,12 @@ async function getTitle(filePath: string): Promise<string> {
   }
 } else if (suffix === '.md') {
     try {
-      const md: Notebook | string = await getFileContents(filePath);     
+      const md: Notebook | string = await getFileContents(filePath);    
       if (!isNotebook(md)) {
         const lines: string[] = md.split("\n");
         for (let line of lines) {
-          if (line.slice(0,2) === '# ') {
-            const title: string = line.slice(2);
-            console.log(title);
+          if (line.slice(0,2) == '# ') {
+            return line.slice(2);
           }
       }
       }
@@ -257,7 +265,7 @@ async function getTitle(filePath: string): Promise<string> {
       console.error('Error reading or parsing Markdown:', error);
   }
 }
-return "Error: Unable to parse title header from notebook or markdown";
+return null;
 }
 
 interface jbookConfig {
@@ -274,14 +282,52 @@ function isJbookConfig(obj: any): obj is jbookConfig {
   obj.logo;
 }
 
-async function getBookTitle(configPath: string): Promise<string> {
+// async function getBookTitle(configPath: string): Promise<string|null> {
+//   try {
+//     const yamlStr = await getFileContents(configPath);
+
+//     if (typeof yamlStr === "string") {
+//       const config: unknown = yaml.load(yamlStr);
+//       if (isJbookConfig(config)) {
+//         return config.title || "Untitled Jupyter Book";
+//       } else {
+//         console.error("Error: Misconfigured Jupyter Book config.");
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error reading or parsing config:', error);
+//   }
+//   return null;
+// }
+
+// async function getAuthor(configPath: string): Promise<string|null> {
+//   try {
+//     const yamlStr = await getFileContents(configPath);
+
+//     if (typeof yamlStr === "string") {
+//       const config: unknown = yaml.load(yamlStr);
+//       if (isJbookConfig(config)) {
+//         console.log(config.author || "Anonymous");
+//         return config.author || "Anonymous";
+//       } else {
+//         console.error("Error: Misconfigured Jupyter Book config.");
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error reading or parsing config:', error);
+//   }
+//   return null;
+// }
+
+async function getBookConfig(configPath: string): Promise<{title: string|null, author: string|null}> {
   try {
     const yamlStr = await getFileContents(configPath);
-
     if (typeof yamlStr === "string") {
       const config: unknown = yaml.load(yamlStr);
       if (isJbookConfig(config)) {
-        return config.title || "Untitled Jupyter Book";
+        const title = config.title || "Untitled Jupyter Book";
+        const author = config.author || "Anonymous";
+        return { title, author };
       } else {
         console.error("Error: Misconfigured Jupyter Book config.");
       }
@@ -289,29 +335,10 @@ async function getBookTitle(configPath: string): Promise<string> {
   } catch (error) {
     console.error('Error reading or parsing config:', error);
   }
-  return "Error: Unable to retrieve book title from _config.yml";
+  return { title: null, author: null };
 }
 
-async function getAuthor(configPath: string): Promise<string> {
-  try {
-    const yamlStr = await getFileContents(configPath);
-
-    if (typeof yamlStr === "string") {
-      const config: unknown = yaml.load(yamlStr);
-      if (isJbookConfig(config)) {
-        console.log(config.author || "Anonymous");
-        return config.author || "Anonymous";
-      } else {
-        console.error("Error: Misconfigured Jupyter Book config.");
-      }
-    }
-  } catch (error) {
-    console.error('Error reading or parsing config:', error);
-  }
-  return "Error: Unable to retrieve author from _config.yml";
-}
-
-async function ls(pth: string) {
+async function ls(pth: string): Promise<any> {
   const baseUrl = '/api/contents/';
   const fullPath = `${baseUrl}${pth}?content=1`;
 
@@ -340,21 +367,235 @@ interface FileMetadata {
   path: string;
 }
 
-async function findTOCinParents(cwd: string) {
+async function findTOCinParents(cwd: string): Promise<string|null> {
   let dirs = cwd.split('/');
-  const toc_pattern: string = "_toc.yml";
+  const tocPattern: string = "_toc.yml";
   while (dirs.length > 0) {
-    let pth = dirs.join('/');
-    let files = await ls(pth);
+    const pth = dirs.join('/');
+    const files = await ls(pth);
     for (let value of Object.values(files.content)) {
       const file = value as FileMetadata;
-      if (file.path.includes(toc_pattern)) {
+
+      console.log("file.path", file.path);
+
+      if (file.path.includes(tocPattern)) {
         console.log("TOC path:", file.path);
         return file.path;
       }
-    dirs.pop();
     }
+    dirs.pop();
   }
-  return "Found no Jupyter Book in parent directories"
+  return null;
 }
 
+async function getFullPath(file_pattern: string, dir_pth: string) {
+  let files = await ls(dir_pth);
+  for (let value of Object.values(files.content)) {
+    const file = value as FileMetadata;
+    if (file.path.includes(file_pattern)) {
+      // console.log("Suffix Path:", file.path);
+      return file.path;
+    }
+  }
+  return `Unable to locate ${file_pattern} in ${dir_pth}`
+
+}
+
+interface Section {
+  sections?: Section[];
+  file?: string;
+  url?: string;
+  title?: string;
+  glob?: string;
+}
+
+interface Toc {
+  parts?: Part[];
+  chapters?: Section[]; // Assuming Section is the same type used in getSubSection
+  caption?: string;
+}
+
+interface Part {
+  caption: string;
+  chapters: Section[];
+}
+
+// async function getSubSection(parts: Section[], cwd: string, level: number = 1, html: string = ""): Promise<string> {
+//   for (const k of parts) {
+//     // if (typeof k !== 'object') {
+//     //   return html;
+//     // }
+    
+//     if (k.sections) {
+
+      
+//       console.log("k.sections: ", k.sections);
+
+//       const files = await ls(cwd);
+//       for (let value of Object.values(files.content)) {
+//         const file = value as FileMetadata;
+
+//         console.log("file.path: ", file.path);
+//         console.log("k.file: ", k.file);
+
+//         if (k.file && file.path.includes(k.file)) {
+//           const title = await getTitle(file.path);
+//           html += `
+//             <div>
+//               <button class="jp-Button toc-button tb-level${level}" style="display: inline-block;" data-file-path="${file.path}">${title}</button>
+//               <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
+//             </div>
+//             <div style="display: none;">
+//           `;
+
+//           html = await getSubSection(k.sections, cwd, level + 1, html);
+//           html += `\n</div>`;
+//           break;
+//         }
+//       }
+//     } else if (k.file) {
+
+//       console.log("k.file: ", k.file);      
+
+//       const files = await ls(cwd);
+//       for (let value of Object.values(files.content)) {
+//         const file = value as FileMetadata;
+//         if (file.path.includes(k.file)) {
+//           const title = await getTitle(file.path);
+//           html += ` <button class="jp-Button toc-button tb-level${level}" style="display: block;" data-file-path="${file.path}">${title}</button>`;
+//           break;
+//         }
+//       }
+//     } else if (k.url) {
+//       html += ` <a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a>`;
+//      } // else if (k.glob) {
+//     //   // TODO: support Jupyter Book globbing
+//     // }
+//   }
+//   return html;
+// }
+
+async function getSubSection(parts: Section[], cwd: string, level: number = 1, html: string = ""): Promise<string> {
+  for (const k of parts) {
+    // if (typeof k !== 'object') {
+    //   return html;
+    // }
+  
+
+    if (k.sections && k.file) {
+
+      const parts = k.file.split('/');
+      parts.pop();
+      const k_dir = parts.join('/');
+      const pth = await getFullPath(k.file, `${cwd}/${k_dir}`);
+      let title = await getTitle(pth);
+      if (!title) {
+        title = k.file;
+      }
+      html += `
+      <div>
+          <button class="jp-Button toc-button tb-level${level}"style="display: inline-block;" data-file-path="${pth}">${title}</button>
+          <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
+      </div>
+      <div style="display: none;">
+      `
+
+      html = await getSubSection(k.sections, cwd, level=level+1, html=html);
+      html += `</div>`
+    } else if (k.file) {
+      const parts = k.file.split('/');
+      parts.pop();
+      const k_dir = parts.join('/');
+      const pth = await getFullPath(k.file, `${cwd}/${k_dir}`);
+      let title = await getTitle(pth);
+      if (!title) {
+        title = k.file;
+      }
+      html += `<button class="jp-Button toc-button tb-level${level}" style="display: block;" data-file-path="${pth}">${title}</button>`
+    } else if (k.url) {
+      html += ` <a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a>`;
+
+    } // else if (k.glob) {
+      //   // TODO: support Jupyter Book globbing
+      // }
+  }
+    return html;
+  }
+
+
+async function tocToHtml(toc: Toc, cwd: string): Promise<string> {
+  let html = "\n<ul>";
+
+  console.log("toc in tocToHtml: ", toc);
+
+  if (toc.parts) {
+
+    for (const chapter of toc.parts) {
+
+      console.log("chapter: ", chapter);
+
+      html += `\n<p class="caption" role="heading"><span class="caption-text"><b>\n${chapter.caption}\n</b></span>\n</p>`;
+      const subSectionHtml = await getSubSection(chapter.chapters, cwd);
+      html += `\n${subSectionHtml}`;
+    }
+  } else {
+    if (toc.chapters) {
+      const subSectionHtml = await getSubSection(toc.chapters, cwd);
+      html += `\n${subSectionHtml}`;
+    }
+  }
+
+  html += "\n</ul>";
+  return html;
+}
+
+
+
+async function getTOC(cwd: string): Promise<string> {
+  const tocPath = await findTOCinParents(cwd);
+  let configPath = null;
+  let configParent = null;
+  if (tocPath) {
+    const parts = tocPath.split('/');
+    parts.pop();
+    configParent = parts.join('/');
+    let files = await ls(configParent);
+    const configPattern = "_config.yml";
+    for (let value of Object.values(files.content)) {
+      const file = value as FileMetadata;
+      if (file.path.includes(configPattern)) {
+        configPath = file.path;
+        break;
+      }
+    }
+  }
+  if (tocPath && configParent && configPath) {
+
+
+    try {
+      const tocYamlStr = await getFileContents(tocPath);
+      if (typeof tocYamlStr === "string") {
+        const tocYaml: unknown = yaml.load(tocYamlStr);
+        const toc = tocYaml as Toc;
+        console.log("toc in getToc: ", toc);
+        const config = await getBookConfig(configPath);
+        const toc_html = await tocToHtml(toc, configParent);
+        return `
+        <div class="jbook-toc" data-toc-dir="${configParent}"><p id="toc-title">${config.title}</p>
+        <p id="toc-author">Author: ${config.author}</p>
+        ${toc_html} </div>"
+          `
+      } else {
+        console.error("Error: Misconfigured Jupyter Book _toc.yml.");
+      }
+    } catch (error) {
+      console.error('Error reading or parsing _toc.yml:', error);
+    }
+  }
+  return `
+  <p id="toc-title">Not a Jupyter-Book</p>
+  <p id="toc-author">"_toc.yml" and/or "_config.yml" not found in or above:</p>
+  <p id="toc-author">${cwd}</p>
+  <p id="toc-author">Please navigate to a directory containing a Jupyter-Book to view its Table of Contents</p>
+  `;
+}
