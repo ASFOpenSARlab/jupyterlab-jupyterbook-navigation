@@ -3,7 +3,7 @@ import {
   JupyterFrontEndPlugin,
   ILabShell
 } from "@jupyterlab/application";
-import { requestAPI } from "./handler";
+// import { requestAPI } from "./handler";
 import { Widget } from "@lumino/widgets";
 
 import { FileBrowser } from "@jupyterlab/filebrowser";
@@ -59,8 +59,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       // Make the API request and update the widget's content
       try {
-        const data = await requestAPI<any>("get-toc", fileBrowser?.model.path);
-        console.log(data);
+        // const data = await requestAPI<any>("get-toc", fileBrowser?.model.path);
+        // console.log(data);
 
         let cwd = fileBrowser?.model.path;
         if (typeof cwd == 'string') {
@@ -111,28 +111,6 @@ function toggleList(button: HTMLButtonElement): void {
   }
 }
 
-function combinePaths(fullPath: string, relativePath: string): string {
-  const fullPathSegments = fullPath.split("/");
-  const relativePathSegments = relativePath.split("/");
-
-  let firstCommonSegmentIndex = -1;
-  for (const segment of relativePathSegments) {
-    const index = fullPathSegments.indexOf(segment);
-    if (index !== -1) {
-      firstCommonSegmentIndex = index;
-      break;
-    }
-  }
-  if (firstCommonSegmentIndex === -1) {
-    return "";
-  }
-
-  const reconstructedPath = fullPathSegments
-    .slice(firstCommonSegmentIndex)
-    .join("/");
-  return reconstructedPath;
-}
-
 function addClickListenerToButtons(
   fileBrowser: FileBrowser | null,
   docManager: IDocumentManager
@@ -166,24 +144,17 @@ function addClickListenerToButtons(
         return;
       }
       console.log(`Current directory: ${fileBrowser.model.path}`);
-      const browser_path = fileBrowser.model.path;
 
       const filePath = button.getAttribute("data-file-path");
       if (typeof filePath === "string") {
-        const relativePath = combinePaths(toc_dir, browser_path);
-
         if (filePath.includes(".md")) {
           docManager.openOrReveal(
-            relativePath + "/" + filePath,
+            filePath,
             "Markdown Preview"
           );
         } else {
-          docManager.openOrReveal(relativePath + "/" + filePath);
+          docManager.openOrReveal(filePath);
         }
-        // getTitle(relativePath + "/" + filePath);  // TODO: REMOVE
-        // getBookConfig(relativePath + "/_config.yml");
-        // ls(relativePath);
-        // findTOCinParents(relativePath);
       }
     });
   });
@@ -420,61 +391,6 @@ interface Part {
   chapters: Section[];
 }
 
-// async function getSubSection(parts: Section[], cwd: string, level: number = 1, html: string = ""): Promise<string> {
-//   for (const k of parts) {
-//     // if (typeof k !== 'object') {
-//     //   return html;
-//     // }
-    
-//     if (k.sections) {
-
-      
-//       console.log("k.sections: ", k.sections);
-
-//       const files = await ls(cwd);
-//       for (let value of Object.values(files.content)) {
-//         const file = value as FileMetadata;
-
-//         console.log("file.path: ", file.path);
-//         console.log("k.file: ", k.file);
-
-//         if (k.file && file.path.includes(k.file)) {
-//           const title = await getTitle(file.path);
-//           html += `
-//             <div>
-//               <button class="jp-Button toc-button tb-level${level}" style="display: inline-block;" data-file-path="${file.path}">${title}</button>
-//               <button class="jp-Button toc-chevron" style="display: inline-block;"><i class="fa fa-chevron-down "></i></button>
-//             </div>
-//             <div style="display: none;">
-//           `;
-
-//           html = await getSubSection(k.sections, cwd, level + 1, html);
-//           html += `\n</div>`;
-//           break;
-//         }
-//       }
-//     } else if (k.file) {
-
-//       console.log("k.file: ", k.file);      
-
-//       const files = await ls(cwd);
-//       for (let value of Object.values(files.content)) {
-//         const file = value as FileMetadata;
-//         if (file.path.includes(k.file)) {
-//           const title = await getTitle(file.path);
-//           html += ` <button class="jp-Button toc-button tb-level${level}" style="display: block;" data-file-path="${file.path}">${title}</button>`;
-//           break;
-//         }
-//       }
-//     } else if (k.url) {
-//       html += ` <a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a>`;
-//      } // else if (k.glob) {
-//     //   // TODO: support Jupyter Book globbing
-//     // }
-//   }
-//   return html;
-// }
-
 async function getSubSection(parts: Section[], cwd: string, level: number = 1, html: string = ""): Promise<string> {
   for (const k of parts) {
     // if (typeof k !== 'object') {
@@ -548,8 +464,6 @@ async function tocToHtml(toc: Toc, cwd: string): Promise<string> {
   html += "\n</ul>";
   return html;
 }
-
-
 
 async function getTOC(cwd: string): Promise<string> {
   const tocPath = await findTOCinParents(cwd);
