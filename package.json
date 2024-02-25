@@ -57,6 +57,8 @@
     "dependencies": {
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
+        "fs": "^0.0.1-security",
+        "glob": "^10.3.10",
         "js-yaml": "^4.1.0",
         "webpack": "^5.89.0"
     },
@@ -64,6 +66,7 @@
         "@jupyterlab/builder": "^4.0.0",
         "@jupyterlab/services": "^7.0.8",
         "@jupyterlab/testutils": "^4.0.8",
+        "@types/glob": "^8.1.0",
         "@types/jest": "^29.2.0",
         "@types/js-yaml": "^4.0.9",
         "@types/json-schema": "^7.0.11",

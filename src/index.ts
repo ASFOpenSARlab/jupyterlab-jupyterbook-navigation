@@ -15,6 +15,7 @@ import { ServerConnection } from "@jupyterlab/services"
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 
+
 const plugin: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab-jupyterbook-navigation:plugin",
   description:
@@ -177,6 +178,7 @@ function addClickListenerToButtons(
         getBookTitle(relativePath + "/_config.yml");
         getAuthor(relativePath + "/_config.yml");
         ls(relativePath);
+        findTOCinParents(relativePath);
       }
     });
   });
@@ -309,9 +311,9 @@ async function getAuthor(configPath: string): Promise<string> {
   return "Error: Unable to retrieve author from _config.yml";
 }
 
-async function ls(path: string) {
+async function ls(pth: string) {
   const baseUrl = '/api/contents/';
-  const fullPath = `${baseUrl}${path}?content=1`;
+  const fullPath = `${baseUrl}${pth}?content=1`;
 
   try {
     const response = await fetch(fullPath, {
@@ -326,11 +328,33 @@ async function ls(path: string) {
     }
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
     console.error("Error listing directory contents:", error);
     return null;
   }
+}
+
+interface FileMetadata {
+  path: string;
+}
+
+async function findTOCinParents(cwd: string) {
+  let dirs = cwd.split('/');
+  const toc_pattern: string = "_toc.yml";
+  while (dirs.length > 0) {
+    let pth = dirs.join('/');
+    let files = await ls(pth);
+    for (let value of Object.values(files.content)) {
+      const file = value as FileMetadata;
+      if (file.path.includes(toc_pattern)) {
+        console.log("TOC path:", file.path);
+        return file.path;
+      }
+    dirs.pop();
+    }
+  }
+  return "Found no Jupyter Book in parent directories"
 }
 
