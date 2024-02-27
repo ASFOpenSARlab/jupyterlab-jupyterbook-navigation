@@ -45,9 +45,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
 
       try {
-        let cwd = fileBrowser?.model.path;
-        if (typeof cwd == 'string') {
-          let toc = await jbtoc.getTOC(cwd);
+        const cwd = fileBrowser?.model.path;
+        if (typeof cwd === 'string') {
+          const toc = await jbtoc.getTOC(cwd);
           summary.innerHTML = toc;
         }
         addClickListenerToButtons(fileBrowser, docManager);
@@ -68,7 +68,7 @@ function addClickListenerToChevron() {
   buttons.forEach(buttonElement => {
     const button = buttonElement as HTMLButtonElement;
     button.addEventListener('click', (event: Event) => {
-      console.log(`Button clicked`);
+      console.log('Button clicked');
       toggleList(button);
     });
   });
