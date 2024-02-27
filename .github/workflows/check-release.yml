@@ -26,6 +26,5 @@ jobs:
       - name: Upload Distributions
         uses: actions/upload-artifact@v3
         with:
-          name: myextension-releaser-dist-${{ github.run_number }}
+          name: jupyterlab_jupyterbook_navigation-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
-          
