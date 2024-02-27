@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab-jupyterbook-navigation",
-    "version": "0.1.4",
+    "version": "0.1.0",
     "description": "A JupyterLab extension that mimics jupyter-book chapter navigation on an un-built, cloned jupyter book in JupyterLab.",
     "keywords": [
         "jupyter",
@@ -18,7 +18,8 @@
     },
     "files": [
         "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-        "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+        "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+        "src/**/*.{ts,tsx}"
     ],
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -56,17 +57,11 @@
     },
     "dependencies": {
         "@jupyterlab/application": "^4.0.0",
-        "@jupyterlab/coreutils": "^6.0.0",
-        "fs": "^0.0.1-security",
-        "glob": "^10.3.10",
-        "js-yaml": "^4.1.0",
-        "webpack": "^5.89.0"
+        "js-yaml": "^4.1.0"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",
-        "@jupyterlab/services": "^7.0.8",
-        "@jupyterlab/testutils": "^4.0.8",
-        "@types/glob": "^8.1.0",
+        "@jupyterlab/testutils": "^4.0.0",
         "@types/jest": "^29.2.0",
         "@types/js-yaml": "^4.0.9",
         "@types/json-schema": "^7.0.11",
@@ -79,10 +74,8 @@
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-prettier": "^5.0.0",
         "jest": "^29.2.0",
-        "mkdirp": "^1.0.3",
         "npm-run-all": "^4.1.5",
         "prettier": "^3.0.0",
-        "react": "^18.2.0",
         "rimraf": "^5.0.1",
         "source-map-loader": "^1.0.2",
         "style-loader": "^3.3.1",
@@ -91,7 +84,7 @@
         "stylelint-config-standard": "^34.0.0",
         "stylelint-csstree-validator": "^3.0.0",
         "stylelint-prettier": "^4.0.0",
-        "typescript": "^5.2.2",
+        "typescript": "~5.0.2",
         "yjs": "^13.5.0"
     },
     "sideEffects": [
@@ -103,17 +96,6 @@
         "access": "public"
     },
     "jupyterlab": {
-        "discovery": {
-            "style": "style/index.css",
-            "server": {
-                "managers": [
-                    "pip"
-                ],
-                "base": {
-                    "name": "jupyterlab_jupyterbook_navigation"
-                }
-            }
-        },
         "extension": true,
         "outputDir": "jupyterlab_jupyterbook_navigation/labextension"
     },
@@ -164,7 +146,14 @@
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-use-before-define": "off",
-            "@typescript-eslint/quotes": "off",
+            "@typescript-eslint/quotes": [
+                "error",
+                "single",
+                {
+                    "avoidEscape": true,
+                    "allowTemplateLiterals": false
+                }
+            ],
             "curly": [
                 "error",
                 "all"
@@ -174,7 +163,7 @@
         }
     },
     "prettier": {
-        "singleQuote": false,
+        "singleQuote": true,
         "trailingComma": "none",
         "arrowParens": "avoid",
         "endOfLine": "auto",
@@ -199,9 +188,9 @@
         "rules": {
             "csstree/validator": true,
             "property-no-vendor-prefix": null,
+            "selector-class-pattern": "^([a-z][A-z\\d]*)(-[A-z\\d]+)*$",
             "selector-no-vendor-prefix": null,
-            "value-no-vendor-prefix": null,
-            "selector-class-pattern": null
+            "value-no-vendor-prefix": null
         }
     }
 }

@@ -13,8 +13,6 @@ dependencies:
   # runtime dependencies
   - python >=3.10,<3.11.0a0
   - jupyterlab >=4.0.0,<5
-  - jupyter-book ~= 0.15.1
-  - mdit-py-plugins ~= 0.3.1
   # labextension build dependencies
   - nodejs >=18,<19
   - pip
