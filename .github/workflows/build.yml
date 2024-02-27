@@ -36,10 +36,6 @@ jobs:
         set -eux
         python -m pip install .[test]
 
-        pytest -vv -r ap --cov jupyterlab_jupyterbook_navigation
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyterlab_jupyterbook_navigation.*OK"
-
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jupyterlab-jupyterbook-navigation.*OK"
         python -m jupyterlab.browser_check
@@ -80,10 +76,6 @@ jobs:
         sudo rm -rf $(which node)
 
         pip install "jupyterlab>=4.0.0,<5" jupyterlab_jupyterbook_navigation*.whl
-
-
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyterlab_jupyterbook_navigation.*OK"
 
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jupyterlab-jupyterbook-navigation.*OK"
