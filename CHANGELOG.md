@@ -4,5 +4,5 @@
 
 previous version: 0.1.4
 
-- Move TOC logic to backend
+- Move TOC logic client side
 
