@@ -93,7 +93,7 @@ function addClickListenerToButtons(
   const buttons = document.querySelectorAll('.toc-button');
   buttons.forEach(button => {
     button.addEventListener('click', (event: Event) => {
-      console.log(`Button clicked`);
+      console.log('Button clicked');
 
       if (!fileBrowser) {
         console.error('File browser not found');
@@ -108,7 +108,7 @@ function addClickListenerToButtons(
 
       const toc_dir = toc_div.getAttribute('data-toc-dir');
       if (typeof toc_dir !== 'string') {
-        console.error(`data-toc-dir attribute loaded`);
+        console.error('data-toc-dir attribute loaded');
         return;
       }
 

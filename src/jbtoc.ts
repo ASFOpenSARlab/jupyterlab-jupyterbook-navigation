@@ -81,7 +81,7 @@ async function getTitle(filePath: string): Promise<string | null> {
           cell => cell.cell_type === 'markdown'
         );
         if (firstHeaderCell) {
-          if (firstHeaderCell.source.split('\n')[0].slice(0, 2) == '# ') {
+          if (firstHeaderCell.source.split('\n')[0].slice(0, 2) === '# ') {
             const title: string = firstHeaderCell.source
               .split('\n')[0]
               .slice(2);
@@ -216,12 +216,12 @@ async function getSubSection(
         </div>
         <div style="display: none;">
         `;
-      // const html_cur = html;
+      const html_cur = html;
       html = await getSubSection(
         k.sections,
         cwd,
         (level = level + 1),
-        (html = html)
+        (html = html_cur)
       );
       html += '</div>';
     } else if (k.file) {
