@@ -37,7 +37,7 @@ interface INotebook {
 
 interface ICell {
   cell_type: 'markdown';
-  metadata: {object: any};
+  metadata: { object: any };
   source: string;
 }
 
