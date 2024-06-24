@@ -161,6 +161,36 @@ async function ls(pth: string): Promise<any> {
   }
 }
 
+async function glob_files(pattern: string): Promise<any> {
+  const baseUrl = '/api/globbing/';
+  const fullPath = `${baseUrl}${pattern}`;
+
+  try {
+    const response = await fetch(fullPath, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const files = await response.json();
+    let result = [];
+    for (const file of files) {
+      if (file.type === 'file') {
+        result.push(file.path);
+      }
+    }
+    return result;
+  } catch (error) {
+    console.error(`Error globbing pattern ${pattern}`, error);
+    return [];
+  }
+}
+
 async function findTOCinParents(cwd: string): Promise<string | null> {
   const dirs = cwd.split('/');
   const tocPattern: string = '_toc.yml';
@@ -199,6 +229,17 @@ async function getSubSection(
   level: number = 1,
   html: string = ''
 ): Promise<string> {
+  async function insert_one_file(file: string) {
+    const parts = file.split('/');
+    parts.pop();
+    const k_dir = parts.join('/');
+    const pth = await getFullPath(file, `${cwd}/${k_dir}`);
+    let title = await getTitle(pth);
+    if (!title) {
+      title = file;
+    }
+    html += `<button class="jp-Button toc-button tb-level${level}" style="display: block;" data-file-path="${pth}">${title}</button>`;
+  }
   for (const k of parts) {
     if (k.sections && k.file) {
       const parts = k.file.split('/');
@@ -225,20 +266,18 @@ async function getSubSection(
       );
       html += '</div>';
     } else if (k.file) {
-      const parts = k.file.split('/');
-      parts.pop();
-      const k_dir = parts.join('/');
-      const pth = await getFullPath(k.file, `${cwd}/${k_dir}`);
-      let title = await getTitle(pth);
-      if (!title) {
-        title = k.file;
-      }
-      html += `<button class="jp-Button toc-button tb-level${level}" style="display: block;" data-file-path="${pth}">${title}</button>`;
+      await insert_one_file(k.file);
     } else if (k.url) {
-      html += ` <a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a>`;
-    } // else if (k.glob) {
-    //   // TODO: support Jupyter Book globbing
-    // }
+      html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
+    } else if (k.glob) {
+      const files = await glob_files(`${cwd}/${k.glob}`);
+      for (const file of files) {
+        const relative = file.replace(`${cwd}/`, '');
+        console.log('relative: ', relative);
+        console.log('file: ', file);
+        await insert_one_file(relative);
+      }
+    }
   }
   return html;
 }
