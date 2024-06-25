@@ -132,9 +132,9 @@ async function getBookConfig(
 }
 
 async function ls(pth: string): Promise<any> {
-  const baseUrl = '/api/contents/';
-
-  const fullPath = `${baseUrl}${pth}?content=1`;
+  const baseUrl = `${window.location.origin}${window.location.pathname.split('/lab')[0]}`;
+  const contentsUrl = `${baseUrl}/api/contents/`;
+  const fullPath = `${contentsUrl}${pth}?content=1`;
 
   try {
     const response = await fetch(fullPath, {
