@@ -221,7 +221,6 @@ async function getSubSection(
   level: number = 1,
   html: string = ''
 ): Promise<string> {
-
   if (cwd && cwd.slice(-1) !== '/') {
     cwd = cwd + '/';
   }
@@ -305,7 +304,7 @@ export async function getTOC(cwd: string): Promise<string> {
 
     parts.pop();
     configParent = parts.join('/');
-  
+
     const files = await ls(configParent);
 
     const configPattern = '_config.yml';
@@ -318,8 +317,12 @@ export async function getTOC(cwd: string): Promise<string> {
     }
   }
 
-
-  if (tocPath && configParent !== null && configParent !== undefined && configPath) {
+  if (
+    tocPath &&
+    configParent !== null &&
+    configParent !== undefined &&
+    configPath
+  ) {
     try {
       const tocYamlStr = await getFileContents(tocPath);
       if (typeof tocYamlStr === 'string') {
