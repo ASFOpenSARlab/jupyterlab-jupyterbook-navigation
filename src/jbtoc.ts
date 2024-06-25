@@ -221,11 +221,16 @@ async function getSubSection(
   level: number = 1,
   html: string = ''
 ): Promise<string> {
+
+  if (cwd && cwd.slice(-1) !== '/') {
+    cwd = cwd + '/';
+  }
+
   async function insert_one_file(file: string) {
     const parts = file.split('/');
     parts.pop();
     const k_dir = parts.join('/');
-    const pth = await getFullPath(file, `${cwd}/${k_dir}`);
+    const pth = await getFullPath(file, `${cwd}${k_dir}`);
     let title = await getTitle(pth);
     if (!title) {
       title = file;
@@ -237,7 +242,7 @@ async function getSubSection(
       const parts = k.file.split('/');
       parts.pop();
       const k_dir = parts.join('/');
-      const pth = await getFullPath(k.file, `${cwd}/${k_dir}`);
+      const pth = await getFullPath(k.file, `${cwd}${k_dir}`);
       let title = await getTitle(pth);
       if (!title) {
         title = k.file;
@@ -262,9 +267,9 @@ async function getSubSection(
     } else if (k.url) {
       html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
     } else if (k.glob) {
-      const files = await glob_files(`${cwd}/${k.glob}`);
+      const files = await glob_files(`${cwd}${k.glob}`);
       for (const file of files) {
-        const relative = file.replace(`${cwd}/`, '');
+        const relative = file.replace(`${cwd}`, '');
         await insert_one_file(relative);
       }
     }
