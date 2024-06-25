@@ -69,10 +69,6 @@ function isNotebook(obj: any): obj is INotebook {
 
 async function getTitle(filePath: string): Promise<string | null> {
   const suffix = path.extname(filePath);
-
-  console.log('suffix: ', suffix);
-  console.log('filePath: ', filePath);
-
   if (suffix === '.ipynb') {
     try {
       const jsonData: INotebook | string = await getFileContents(filePath);
@@ -85,7 +81,6 @@ async function getTitle(filePath: string): Promise<string | null> {
             const title: string = firstHeaderCell.source
               .split('\n')[0]
               .slice(2);
-            console.log(title);
             return title;
           }
         }
@@ -138,6 +133,7 @@ async function getBookConfig(
 
 async function ls(pth: string): Promise<any> {
   const baseUrl = '/api/contents/';
+
   const fullPath = `${baseUrl}${pth}?content=1`;
 
   try {
@@ -153,7 +149,6 @@ async function ls(pth: string): Promise<any> {
     }
 
     const data = await response.json();
-    // console.log(data);
     return data;
   } catch (error) {
     console.error('Error listing directory contents:', error);
@@ -200,10 +195,7 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
 
-      console.log('file.path', file.path);
-
       if (file.path.includes(tocPattern)) {
-        console.log('TOC path:', file.path);
         return file.path;
       }
     }
@@ -273,8 +265,6 @@ async function getSubSection(
       const files = await glob_files(`${cwd}/${k.glob}`);
       for (const file of files) {
         const relative = file.replace(`${cwd}/`, '');
-        console.log('relative: ', relative);
-        console.log('file: ', file);
         await insert_one_file(relative);
       }
     }
@@ -284,13 +274,8 @@ async function getSubSection(
 
 async function tocToHtml(toc: IToc, cwd: string): Promise<string> {
   let html = '\n<ul>';
-
-  console.log('toc in tocToHtml: ', toc);
-
   if (toc.parts) {
     for (const chapter of toc.parts) {
-      console.log('chapter: ', chapter);
-
       html += `\n<p class="caption" role="heading"><span class="caption-text"><b>\n${chapter.caption}\n</b></span>\n</p>`;
       const subISectionHtml = await getSubSection(chapter.chapters, cwd);
       html += `\n${subISectionHtml}`;
@@ -312,9 +297,12 @@ export async function getTOC(cwd: string): Promise<string> {
   let configParent = null;
   if (tocPath) {
     const parts = tocPath.split('/');
+
     parts.pop();
     configParent = parts.join('/');
+  
     const files = await ls(configParent);
+
     const configPattern = '_config.yml';
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
@@ -324,13 +312,14 @@ export async function getTOC(cwd: string): Promise<string> {
       }
     }
   }
-  if (tocPath && configParent && configPath) {
+
+
+  if (tocPath && configParent !== null && configParent !== undefined && configPath) {
     try {
       const tocYamlStr = await getFileContents(tocPath);
       if (typeof tocYamlStr === 'string') {
         const tocYaml: unknown = yaml.load(tocYamlStr);
         const toc = tocYaml as IToc;
-        console.log('toc in getToc: ', toc);
         const config = await getBookConfig(configPath);
         const toc_html = await tocToHtml(toc, configParent);
         return `
