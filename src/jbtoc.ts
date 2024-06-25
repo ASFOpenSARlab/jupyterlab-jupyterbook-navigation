@@ -173,7 +173,7 @@ async function glob_files(pattern: string): Promise<any> {
     }
 
     const files = await response.json();
-    let result = [];
+    const result = [];
     for (const file of files) {
       if (file.type === 'file') {
         result.push(file.path);
