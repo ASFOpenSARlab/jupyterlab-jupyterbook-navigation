@@ -131,11 +131,20 @@ async function getBookConfig(
   return { title: null, author: null };
 }
 
-async function ls(pth: string): Promise<any> {
-  const baseUrl = `${window.location.origin}${window.location.pathname.split('/lab')[0]}`;
-  const contentsUrl = `${baseUrl}/api/contents/`;
-  const fullPath = `${contentsUrl}${pth}?content=1`;
+function getBaseUrl() {
+  const origin = window.location.origin;
+  const pathSegment = window.location.pathname.split('/');
+  // Remove empty strings
+  const filteredSegments = pathSegment.filter(part => part !== '');
+  const labIndex = filteredSegments.lastIndexOf('lab');
+  // If 'lab' not in path, use the entire path, else slice up to last instance of 'lab'
+  const segments = labIndex !== -1 ? filteredSegments.slice(0, labIndex).join('/') : filteredSegments.join('/');
+  return segments ? `${origin}/${segments}` : origin;
+}
 
+async function ls(pth: string): Promise<any> {
+  const baseUrl = getBaseUrl();
+  const fullPath = `${baseUrl}/api/contents/${pth}?content=1`;
   try {
     const response = await fetch(fullPath, {
       method: 'GET',
