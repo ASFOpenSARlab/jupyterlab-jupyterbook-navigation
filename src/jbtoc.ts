@@ -138,7 +138,10 @@ function getBaseUrl() {
   const filteredSegments = pathSegment.filter(part => part !== '');
   const labIndex = filteredSegments.lastIndexOf('lab');
   // If 'lab' not in path, use the entire path, else slice up to last instance of 'lab'
-  const segments = labIndex !== -1 ? filteredSegments.slice(0, labIndex).join('/') : filteredSegments.join('/');
+  const segments =
+    labIndex !== -1
+      ? filteredSegments.slice(0, labIndex).join('/')
+      : filteredSegments.join('/');
   return segments ? `${origin}/${segments}` : origin;
 }
 
