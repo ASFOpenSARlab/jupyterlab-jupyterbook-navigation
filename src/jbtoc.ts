@@ -240,6 +240,7 @@ async function globFiles(pattern: string): Promise<string[]> {
 
   try {
     const data = await contentsManager.get(baseDir, { content: true });
+    console.log('Directory Data:', data);
     
     const regex = new RegExp(pattern);
     for (const item of data.content) {
