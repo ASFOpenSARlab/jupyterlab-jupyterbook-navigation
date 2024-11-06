@@ -366,7 +366,13 @@ async function tocToHtml(toc: IToc, cwd: string): Promise<string> {
 }
 
 export async function getTOC(cwd: string): Promise<string> {
+
+  console.log("Made it to getTOC");
+
   const tocPath = await findTOCinParents(cwd);
+
+  console.log("made it past findTOCinParents");
+
   let configPath = null;
   let configParent = null;
   if (tocPath) {
