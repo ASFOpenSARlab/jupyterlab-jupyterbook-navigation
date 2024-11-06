@@ -1,5 +1,4 @@
-import { ContentsManager } from '@jupyterlab/services';
-import { ServerConnection } from '@jupyterlab/services';
+import { ContentsManager, ServerConnection } from '@jupyterlab/services';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 
@@ -42,26 +41,44 @@ interface ICell {
   source: string;
 }
 
-async function getFileContents(path: string): Promise<INotebook | string> {
+// async function getFileContents(path: string): Promise<INotebook | string> {
+//   const serverSettings = ServerConnection.makeSettings();
+
+//   const url = new URL(path, serverSettings.baseUrl + 'api/contents/').href;
+
+//   let response: Response;
+
+//   try {
+//     response = await ServerConnection.makeRequest(url, {}, serverSettings);
+//   } catch (error) {
+//     console.error(`Failed to get file: ${error}`);
+//     throw error;
+//   }
+
+//   if (!response.ok) {
+//     throw new Error(`Failed to get file: ${response.statusText}`);
+//   }
+
+//   const data = await response.json();
+//   return data.content;
+// }
+
+async function getFileContents(path: string): Promise<string> {
   const serverSettings = ServerConnection.makeSettings();
-
-  const url = new URL(path, serverSettings.baseUrl + 'api/contents/').href;
-
-  let response: Response;
+  const contentsManager = new ContentsManager({ serverSettings });
 
   try {
-    response = await ServerConnection.makeRequest(url, {}, serverSettings);
+    const file = await contentsManager.get(path, { content: true });
+    
+    if (file.type === 'notebook' || file.type === 'file') {
+      return file.content as string;
+    } else {
+      throw new Error(`Unsupported file type: ${file.type}`);
+    }
   } catch (error) {
-    console.error(`Failed to get file: ${error}`);
+    console.error(`Failed to get file contents for ${path}:`, error);
     throw error;
   }
-
-  if (!response.ok) {
-    throw new Error(`Failed to get file: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.content;
 }
 
 function isNotebook(obj: any): obj is INotebook {
