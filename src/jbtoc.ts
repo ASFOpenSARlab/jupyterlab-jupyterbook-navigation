@@ -201,34 +201,57 @@ async function ls(pth: string): Promise<any> {
 }
 
 
-async function glob_files(pattern: string): Promise<any> {
-  const baseUrl = '/api/globbing/';
-  const fullPath = `${baseUrl}${pattern}`;
+// async function globFiles(pattern: string): Promise<any> {
+//   const baseUrl = '/api/globbing/';
+//   const fullPath = `${baseUrl}${pattern}`;
+
+//   try {
+//     const response = await fetch(fullPath, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const files = await response.json();
+//     const result = [];
+//     for (const file of files) {
+//       if (file.type === 'file') {
+//         result.push(file.path);
+//       }
+//     }
+//     return result;
+//   } catch (error) {
+//     console.error(`Error globbing pattern ${pattern}`, error);
+//     return [];
+//   }
+// }
+
+async function globFiles(pattern: string): Promise<string[]> {
+  const serverSettings = ServerConnection.makeSettings();
+  const contentsManager = new ContentsManager({ serverSettings });
+
+  const baseDir = '';
+  const result: string[] = [];
 
   try {
-    const response = await fetch(fullPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const files = await response.json();
-    const result = [];
-    for (const file of files) {
-      if (file.type === 'file') {
-        result.push(file.path);
+    const data = await contentsManager.get(baseDir, { content: true });
+    
+    const regex = new RegExp(pattern);
+    for (const item of data.content) {
+      if (item.type === 'file' && regex.test(item.path)) {
+        result.push(item.path);
       }
     }
-    return result;
   } catch (error) {
     console.error(`Error globbing pattern ${pattern}`, error);
-    return [];
   }
+
+  return result;
 }
 
 async function findTOCinParents(cwd: string): Promise<string | null> {
@@ -311,7 +334,7 @@ async function getSubSection(
     } else if (k.url) {
       html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
     } else if (k.glob) {
-      const files = await glob_files(`${cwd}${k.glob}`);
+      const files = await globFiles(`${cwd}${k.glob}`);
       for (const file of files) {
         const relative = file.replace(`${cwd}`, '');
         await insert_one_file(relative);
