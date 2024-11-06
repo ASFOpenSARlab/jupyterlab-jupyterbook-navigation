@@ -191,6 +191,8 @@ async function ls(pth: string): Promise<any> {
   const settings = ServerConnection.makeSettings();
   const contentsManager = new ContentsManager({ serverSettings: settings });
   
+  console.log("Made it to ls")
+
   try {
     const data = await contentsManager.get(pth, { content: true });
     return data;
@@ -258,6 +260,10 @@ async function globFiles(pattern: string): Promise<string[]> {
 
 async function findTOCinParents(cwd: string): Promise<string | null> {
   const dirs = cwd.split('/');
+
+  console.log("Made it to findTOCinParents");
+  console.log("dirs:" + dirs);
+
   const tocPattern: string = '_toc.yml';
   while (dirs.length > 0) {
     const pth = dirs.join('/');
