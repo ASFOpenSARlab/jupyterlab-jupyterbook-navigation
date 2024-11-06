@@ -1,3 +1,4 @@
+import { ContentsManager } from '@jupyterlab/services';
 import { ServerConnection } from '@jupyterlab/services';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -145,28 +146,43 @@ function getBaseUrl() {
   return segments ? `${origin}/${segments}` : origin;
 }
 
+// async function ls(pth: string): Promise<any> {
+//   const baseUrl = getBaseUrl();
+//   const fullPath = `${baseUrl}/api/contents/${pth}?content=1`;
+//   try {
+//     const response = await fetch(fullPath, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error('Error listing directory contents:', error);
+//     return null;
+//   }
+// }
+
+
 async function ls(pth: string): Promise<any> {
-  const baseUrl = getBaseUrl();
-  const fullPath = `${baseUrl}/api/contents/${pth}?content=1`;
+  const settings = ServerConnection.makeSettings();
+  const contentsManager = new ContentsManager({ serverSettings: settings });
+  
   try {
-    const response = await fetch(fullPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await contentsManager.get(pth, { content: true });
     return data;
   } catch (error) {
     console.error('Error listing directory contents:', error);
     return null;
   }
 }
+
 
 async function glob_files(pattern: string): Promise<any> {
   const baseUrl = '/api/globbing/';
