@@ -265,7 +265,8 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
   console.log("dirs:" + dirs);
 
   const tocPattern: string = '_toc.yml';
-  while (dirs.length > 0) {
+  let counter: number = 0;
+  while (counter < 1) {
     const pth = dirs.join('/');
     const files = await ls(pth);
     for (const value of Object.values(files.content)) {
@@ -275,7 +276,12 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
         return file.path;
       }
     }
-    dirs.pop();
+    if (dirs.length == 0) {
+      counter += 1;
+    }
+    else {
+      dirs.pop();
+    }
   }
   return null;
 }
