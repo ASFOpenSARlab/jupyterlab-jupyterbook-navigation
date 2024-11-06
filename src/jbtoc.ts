@@ -239,6 +239,7 @@ async function globFiles(pattern: string): Promise<string[]> {
   const result: string[] = [];
 
   try {
+    console.log("made it to the glob function");
     const data = await contentsManager.get(baseDir, { content: true });
     console.log('Directory Data:', data);
     
