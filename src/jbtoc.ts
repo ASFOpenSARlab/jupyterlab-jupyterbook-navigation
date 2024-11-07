@@ -193,8 +193,14 @@ async function ls(pth: string): Promise<any> {
   
   console.log("Made it to ls")
 
+  if (pth == "") {
+    pth = "/";
+  }
+
   try {
+    console.log("Attempting to access:", pth);
     const data = await contentsManager.get(pth, { content: true });
+    console.log("File data:", data);
     return data;
   } catch (error) {
     console.error('Error listing directory contents:', error);
