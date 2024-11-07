@@ -194,20 +194,11 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
   
   console.log("Made it to ls");
 
-  // const isJupyterLite = !!navigator.serviceWorker.controller;
   const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
 
-  // let isJupyterLite = false;
-
-  // try {
-  //   await contentsManager.get(pth, { content: true });
-  // } catch {
-  //   isJupyterLite = true; 
+  // if (pth === "") {
+  //   pth = "/";
   // }
-
-  if (pth === "") {
-    pth = "/";
-  }
 
   try {
     let data;
