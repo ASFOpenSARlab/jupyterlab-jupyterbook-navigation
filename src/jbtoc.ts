@@ -196,9 +196,9 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
 
   const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
 
-  // if (pth === "") {
-  //   pth = "/";
-  // }
+  if (pth === "") {
+    pth = "/";
+  }
 
   try {
     let data;
