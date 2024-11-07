@@ -1,4 +1,5 @@
 import { ContentsManager, ServerConnection } from '@jupyterlab/services';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 
@@ -187,23 +188,32 @@ async function getBookConfig(
 // }
 
 
-async function ls(pth: string): Promise<any> {
+async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
   const settings = ServerConnection.makeSettings();
   const contentsManager = new ContentsManager({ serverSettings: settings });
   
-  console.log("Made it to ls")
+  console.log("Made it to ls");
 
-  if (pth == "") {
+  const isJupyterLite = !!(window as any).JupyterLite;
+
+  if (pth === "") {
     pth = "/";
   }
 
   try {
-    console.log("Attempting to access:", pth);
-    const data = await contentsManager.get(pth, { content: true });
-    console.log("File data:", data);
+    let data;
+    if (isJupyterLite) {
+      console.log("Attempting to access with JupyterLite content manager:", pth);
+      data = await app.serviceManager.contents.get(pth, { content: true });
+      console.log("File data from JupyterLite:", data);
+    } else {
+      console.log("Attempting to access with regular contentsManager:", pth);
+      data = await contentsManager.get(pth, { content: true });
+      console.log("File data from regular JupyterLab:", data);
+    }
     return data;
   } catch (error) {
-    console.error('Error listing directory contents:', error);
+    console.error("Error listing directory contents:", error);
     return null;
   }
 }
