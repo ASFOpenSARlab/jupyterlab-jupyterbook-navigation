@@ -1,4 +1,3 @@
-import { ContentsManager, ServerConnection } from '@jupyterlab/services';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -43,24 +42,8 @@ interface ICell {
 }
 
 async function getFileContents(app: JupyterFrontEnd, path: string): Promise<string> {
-  const serverSettings = ServerConnection.makeSettings();
-  const contentsManager = new ContentsManager({ serverSettings });
-
-  const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
-
   try {
-    // const file = await contentsManager.get(path, { content: true });
-    let data;
-    if (isJupyterLite) {
-      console.log("Attempting to access with JupyterLite content manager:", path);
-      data = await app.serviceManager.contents.get(path, { content: true });
-      console.log("File data from JupyterLite:", data);
-    } else {
-      console.log("Attempting to access with regular contentsManager:", path);
-      data = await contentsManager.get(path, { content: true });
-      console.log("File data from regular JupyterLab:", data);
-    }
-    
+    const data = await app.serviceManager.contents.get(path, { content: true });
     if (data.type === 'notebook' || data.type === 'file') {
       return data.content as string;
     } else {
@@ -142,28 +125,12 @@ async function getBookConfig(
 }
 
 async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
-  const settings = ServerConnection.makeSettings();
-  const contentsManager = new ContentsManager({ serverSettings: settings });
-  
-  console.log("Made it to ls");
-
-  const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
-
   if (pth === "") {
     pth = "/";
   }
 
   try {
-    let data;
-    if (isJupyterLite) {
-      console.log("Attempting to access with JupyterLite content manager:", pth);
-      data = await app.serviceManager.contents.get(pth, { content: true });
-      console.log("File data from JupyterLite:", data);
-    } else {
-      console.log("Attempting to access with regular contentsManager:", pth);
-      data = await contentsManager.get(pth, { content: true });
-      console.log("File data from regular JupyterLab:", data);
-    }
+    const data = await app.serviceManager.contents.get(pth, { content: true });
     return data;
   } catch (error) {
     console.error("Error listing directory contents:", error);
@@ -172,28 +139,11 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
 }
 
 async function globFiles(app: JupyterFrontEnd, pattern: string): Promise<string[]> {
-  const serverSettings = ServerConnection.makeSettings();
-  const contentsManager = new ContentsManager({ serverSettings });
-
   const baseDir = '';
   const result: string[] = [];
 
-  const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
-
   try {
-    console.log("made it to the glob function");
-    // const data = await contentsManager.get(baseDir, { content: true });
-    let data;
-    if (isJupyterLite) {
-      console.log("Attempting to access with JupyterLite content manager:", baseDir);
-      data = await app.serviceManager.contents.get(baseDir, { content: true });
-      console.log("File data from JupyterLite:", data);
-    } else {
-      console.log("Attempting to access with regular contentsManager:", baseDir);
-      data = await contentsManager.get(baseDir, { content: true });
-      console.log("File data from regular JupyterLab:", data);
-    }
-    
+    const data = await app.serviceManager.contents.get(baseDir, { content: true });
     const regex = new RegExp(pattern);
     for (const item of data.content) {
       if (item.type === 'file' && regex.test(item.path)) {
@@ -209,10 +159,6 @@ async function globFiles(app: JupyterFrontEnd, pattern: string): Promise<string[
 
 async function findTOCinParents(app: JupyterFrontEnd, cwd: string): Promise<string | null> {
   const dirs = cwd.split('/');
-
-  console.log("Made it to findTOCinParents");
-  console.log("dirs:" + dirs);
-
   const tocPattern: string = '_toc.yml';
   let counter: number = 0;
   while (counter < 1) {
@@ -329,27 +275,14 @@ async function tocToHtml(app: JupyterFrontEnd, toc: IToc, cwd: string): Promise<
 }
 
 export async function getTOC(app: JupyterFrontEnd, cwd: string): Promise<string> {
-
-  console.log("Made it to getTOC");
-
   const tocPath = await findTOCinParents(app, cwd);
-
-  console.log("made it past findTOCinParents");
-
   let configPath = null;
   let configParent = null;
   if (tocPath) {
     const parts = tocPath.split('/');
-
     parts.pop();
     configParent = parts.join('/');
-
-    console.log("configParent:" + configParent);
-
     const files = await ls(app, configParent);
-
-    console.log("files:" + files)
-
     const configPattern = '_config.yml';
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
