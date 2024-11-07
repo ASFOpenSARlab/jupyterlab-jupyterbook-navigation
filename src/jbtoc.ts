@@ -142,10 +142,11 @@ function isIJbookConfig(obj: any): obj is IJbookConfig {
 }
 
 async function getBookConfig(
+  app: JupyterFrontEnd,
   configPath: string
 ): Promise<{ title: string | null; author: string | null }> {
   try {
-    const yamlStr = await getFileContents(configPath);
+    const yamlStr = await getFileContents(app, configPath);
     if (typeof yamlStr === 'string') {
       const config: unknown = yaml.load(yamlStr);
       if (isIJbookConfig(config)) {
@@ -457,7 +458,7 @@ export async function getTOC(app: JupyterFrontEnd, cwd: string): Promise<string>
       if (typeof tocYamlStr === 'string') {
         const tocYaml: unknown = yaml.load(tocYamlStr);
         const toc = tocYaml as IToc;
-        const config = await getBookConfig(configPath);
+        const config = await getBookConfig(app, configPath);
         const toc_html = await tocToHtml(app, toc, configParent);
         return `
           <div class="jbook-toc" data-toc-dir="${configParent}"><p id="toc-title">${config.title}</p>
