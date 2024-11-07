@@ -64,17 +64,29 @@ interface ICell {
 //   return data.content;
 // }
 
-async function getFileContents(path: string): Promise<string> {
+async function getFileContents(app: JupyterFrontEnd, path: string): Promise<string> {
   const serverSettings = ServerConnection.makeSettings();
   const contentsManager = new ContentsManager({ serverSettings });
 
+  const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
+
   try {
-    const file = await contentsManager.get(path, { content: true });
-    
-    if (file.type === 'notebook' || file.type === 'file') {
-      return file.content as string;
+    // const file = await contentsManager.get(path, { content: true });
+    let data;
+    if (isJupyterLite) {
+      console.log("Attempting to access with JupyterLite content manager:", path);
+      data = await app.serviceManager.contents.get(path, { content: true });
+      console.log("File data from JupyterLite:", data);
     } else {
-      throw new Error(`Unsupported file type: ${file.type}`);
+      console.log("Attempting to access with regular contentsManager:", path);
+      data = await contentsManager.get(path, { content: true });
+      console.log("File data from regular JupyterLab:", data);
+    }
+    
+    if (data.type === 'notebook' || data.type === 'file') {
+      return data.content as string;
+    } else {
+      throw new Error(`Unsupported file type: ${data.type}`);
     }
   } catch (error) {
     console.error(`Failed to get file contents for ${path}:`, error);
@@ -86,11 +98,11 @@ function isNotebook(obj: any): obj is INotebook {
   return obj && typeof obj === 'object' && Array.isArray(obj.cells);
 }
 
-async function getTitle(filePath: string): Promise<string | null> {
+async function getTitle(app: JupyterFrontEnd, filePath: string): Promise<string | null> {
   const suffix = path.extname(filePath);
   if (suffix === '.ipynb') {
     try {
-      const jsonData: INotebook | string = await getFileContents(filePath);
+      const jsonData: INotebook | string = await getFileContents(app, filePath);
       if (isNotebook(jsonData)) {
         const firstHeaderCell = jsonData.cells.find(
           cell => cell.cell_type === 'markdown'
@@ -109,7 +121,7 @@ async function getTitle(filePath: string): Promise<string | null> {
     }
   } else if (suffix === '.md') {
     try {
-      const md: INotebook | string = await getFileContents(filePath);
+      const md: INotebook | string = await getFileContents(app, filePath);
       if (!isNotebook(md)) {
         const lines: string[] = md.split('\n');
         for (const line of lines) {
@@ -249,17 +261,28 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
 //   }
 // }
 
-async function globFiles(pattern: string): Promise<string[]> {
+async function globFiles(app: JupyterFrontEnd, pattern: string): Promise<string[]> {
   const serverSettings = ServerConnection.makeSettings();
   const contentsManager = new ContentsManager({ serverSettings });
 
   const baseDir = '';
   const result: string[] = [];
 
+  const isJupyterLite = !!navigator.serviceWorker.controller || !!(window as any).JupyterLiteContents || (app as any).isLite === true;
+
   try {
     console.log("made it to the glob function");
-    const data = await contentsManager.get(baseDir, { content: true });
-    console.log('Directory Data:', data);
+    // const data = await contentsManager.get(baseDir, { content: true });
+    let data;
+    if (isJupyterLite) {
+      console.log("Attempting to access with JupyterLite content manager:", baseDir);
+      data = await app.serviceManager.contents.get(baseDir, { content: true });
+      console.log("File data from JupyterLite:", data);
+    } else {
+      console.log("Attempting to access with regular contentsManager:", baseDir);
+      data = await contentsManager.get(baseDir, { content: true });
+      console.log("File data from regular JupyterLab:", data);
+    }
     
     const regex = new RegExp(pattern);
     for (const item of data.content) {
@@ -329,7 +352,7 @@ async function getSubSection(
     parts.pop();
     const k_dir = parts.join('/');
     const pth = await getFullPath(app, file, `${cwd}${k_dir}`);
-    let title = await getTitle(pth);
+    let title = await getTitle(app, pth);
     if (!title) {
       title = file;
     }
@@ -341,7 +364,7 @@ async function getSubSection(
       parts.pop();
       const k_dir = parts.join('/');
       const pth = await getFullPath(app, k.file, `${cwd}${k_dir}`);
-      let title = await getTitle(pth);
+      let title = await getTitle(app, pth);
       if (!title) {
         title = k.file;
       }
@@ -366,7 +389,7 @@ async function getSubSection(
     } else if (k.url) {
       html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
     } else if (k.glob) {
-      const files = await globFiles(`${cwd}${k.glob}`);
+      const files = await globFiles(app, `${cwd}${k.glob}`);
       for (const file of files) {
         const relative = file.replace(`${cwd}`, '');
         await insert_one_file(relative);
@@ -430,7 +453,7 @@ export async function getTOC(app: JupyterFrontEnd, cwd: string): Promise<string>
     configPath
   ) {
     try {
-      const tocYamlStr = await getFileContents(tocPath);
+      const tocYamlStr = await getFileContents(app, tocPath);
       if (typeof tocYamlStr === 'string') {
         const tocYaml: unknown = yaml.load(tocYamlStr);
         const toc = tocYaml as IToc;
