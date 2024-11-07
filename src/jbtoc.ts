@@ -194,9 +194,9 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
   
   console.log("Made it to ls");
 
-  const isJupyterLite = !!navigator.serviceWorker.controller;
+  // const isJupyterLite = !!navigator.serviceWorker.controller;
 
-  // let isJupyterLite = false;
+  let isJupyterLite = true;
 
   // try {
   //   await app.serviceManager.contents.get("/", { content: false });
