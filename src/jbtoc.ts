@@ -116,7 +116,7 @@ async function getTitle(app: JupyterFrontEnd, filePath: string): Promise<string 
 }
 
 function isIJbookConfig(obj: any): obj is IJbookConfig {
-  return obj && typeof obj === 'object' && obj.title && obj.author && obj.logo;
+  return obj && typeof obj === 'object' && obj.title && obj.author;
 }
 
 async function getBookConfig(
