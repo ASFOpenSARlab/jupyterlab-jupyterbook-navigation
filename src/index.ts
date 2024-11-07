@@ -47,7 +47,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       try {
         const cwd = fileBrowser?.model.path;
         if (typeof cwd === 'string') {
-          const toc = await jbtoc.getTOC(cwd);
+          const toc = await jbtoc.getTOC(app, cwd);
           summary.innerHTML = toc;
         }
         addClickListenerToButtons(fileBrowser, docManager);
