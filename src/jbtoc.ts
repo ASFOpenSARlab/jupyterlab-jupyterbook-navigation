@@ -309,7 +309,7 @@ export async function getTOC(cwd: string): Promise<string> {
         return `
           <div class="jbook-toc" data-toc-dir="${configParent}"><p id="toc-title">${config.title}</p>
           <p id="toc-author">Author: ${config.author}</p>
-          ${toc_html} </div>"
+          ${toc_html} </div>
             `;
       } else {
         console.error('Error: Misconfigured Jupyter Book _toc.yml.');
