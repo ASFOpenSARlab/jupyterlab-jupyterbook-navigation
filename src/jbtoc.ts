@@ -1,6 +1,7 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { getJupyterAppInstance } from './index';
 
 interface IFileMetadata {
   path: string;
@@ -41,8 +42,9 @@ interface ICell {
   source: string;
 }
 
-async function getFileContents(app: JupyterFrontEnd, path: string): Promise<string> {
+async function getFileContents(path: string): Promise<string> {
   try {
+    const app = getJupyterAppInstance();
     const data = await app.serviceManager.contents.get(path, { content: true });
     if (data.type === 'notebook' || data.type === 'file') {
       return data.content as string;
@@ -59,11 +61,11 @@ function isNotebook(obj: any): obj is INotebook {
   return obj && typeof obj === 'object' && Array.isArray(obj.cells);
 }
 
-async function getTitle(app: JupyterFrontEnd, filePath: string): Promise<string | null> {
+async function getTitle(filePath: string): Promise<string | null> {
   const suffix = path.extname(filePath);
   if (suffix === '.ipynb') {
     try {
-      const jsonData: INotebook | string = await getFileContents(app, filePath);
+      const jsonData: INotebook | string = await getFileContents(filePath);
       if (isNotebook(jsonData)) {
         const firstHeaderCell = jsonData.cells.find(
           cell => cell.cell_type === 'markdown'
@@ -82,7 +84,7 @@ async function getTitle(app: JupyterFrontEnd, filePath: string): Promise<string 
     }
   } else if (suffix === '.md') {
     try {
-      const md: INotebook | string = await getFileContents(app, filePath);
+      const md: INotebook | string = await getFileContents(filePath);
       if (!isNotebook(md)) {
         const lines: string[] = md.split('\n');
         for (const line of lines) {
@@ -103,11 +105,10 @@ function isIJbookConfig(obj: any): obj is IJbookConfig {
 }
 
 async function getBookConfig(
-  app: JupyterFrontEnd,
   configPath: string
 ): Promise<{ title: string | null; author: string | null }> {
   try {
-    const yamlStr = await getFileContents(app, configPath);
+    const yamlStr = await getFileContents(configPath);
     if (typeof yamlStr === 'string') {
       const config: unknown = yaml.load(yamlStr);
       if (isIJbookConfig(config)) {
@@ -124,12 +125,13 @@ async function getBookConfig(
   return { title: null, author: null };
 }
 
-async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
+async function ls(pth: string): Promise<any> {
   if (pth === "") {
     pth = "/";
   }
 
   try {
+    const app = getJupyterAppInstance();
     const data = await app.serviceManager.contents.get(pth, { content: true });
     return data;
   } catch (error) {
@@ -138,11 +140,12 @@ async function ls(app: JupyterFrontEnd, pth: string): Promise<any> {
   }
 }
 
-async function globFiles(app: JupyterFrontEnd, pattern: string): Promise<string[]> {
+async function globFiles(pattern: string): Promise<string[]> {
   const baseDir = '';
   const result: string[] = [];
 
   try {
+    const app = getJupyterAppInstance();
     const data = await app.serviceManager.contents.get(baseDir, { content: true });
     const regex = new RegExp(pattern);
     for (const item of data.content) {
@@ -157,13 +160,13 @@ async function globFiles(app: JupyterFrontEnd, pattern: string): Promise<string[
   return result;
 }
 
-async function findTOCinParents(app: JupyterFrontEnd, cwd: string): Promise<string | null> {
+async function findTOCinParents(cwd: string): Promise<string | null> {
   const dirs = cwd.split('/');
   const tocPattern: string = '_toc.yml';
   let counter: number = 0;
   while (counter < 1) {
     const pth = dirs.join('/');
-    const files = await ls(app, pth);
+    const files = await ls(pth);
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
 
@@ -181,8 +184,8 @@ async function findTOCinParents(app: JupyterFrontEnd, cwd: string): Promise<stri
   return null;
 }
 
-async function getFullPath(app: JupyterFrontEnd, file_pattern: string, dir_pth: string) {
-  const files = await ls(app, dir_pth);
+async function getFullPath(file_pattern: string, dir_pth: string) {
+  const files = await ls(dir_pth);
   for (const value of Object.values(files.content)) {
     const file = value as IFileMetadata;
     if (file.path.includes(file_pattern)) {
@@ -193,7 +196,6 @@ async function getFullPath(app: JupyterFrontEnd, file_pattern: string, dir_pth: 
 }
 
 async function getSubSection(
-  app: JupyterFrontEnd,
   parts: ISection[],
   cwd: string,
   level: number = 1,
@@ -207,8 +209,8 @@ async function getSubSection(
     const parts = file.split('/');
     parts.pop();
     const k_dir = parts.join('/');
-    const pth = await getFullPath(app, file, `${cwd}${k_dir}`);
-    let title = await getTitle(app, pth);
+    const pth = await getFullPath(file, `${cwd}${k_dir}`);
+    let title = await getTitle(pth);
     if (!title) {
       title = file;
     }
@@ -219,8 +221,8 @@ async function getSubSection(
       const parts = k.file.split('/');
       parts.pop();
       const k_dir = parts.join('/');
-      const pth = await getFullPath(app, k.file, `${cwd}${k_dir}`);
-      let title = await getTitle(app, pth);
+      const pth = await getFullPath(k.file, `${cwd}${k_dir}`);
+      let title = await getTitle(pth);
       if (!title) {
         title = k.file;
       }
@@ -233,7 +235,6 @@ async function getSubSection(
         `;
       const html_cur = html;
       html = await getSubSection(
-        app,
         k.sections,
         cwd,
         (level = level + 1),
@@ -245,7 +246,7 @@ async function getSubSection(
     } else if (k.url) {
       html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
     } else if (k.glob) {
-      const files = await globFiles(app, `${cwd}${k.glob}`);
+      const files = await globFiles(`${cwd}${k.glob}`);
       for (const file of files) {
         const relative = file.replace(`${cwd}`, '');
         await insert_one_file(relative);
@@ -255,17 +256,17 @@ async function getSubSection(
   return html;
 }
 
-async function tocToHtml(app: JupyterFrontEnd, toc: IToc, cwd: string): Promise<string> {
+async function tocToHtml(toc: IToc, cwd: string): Promise<string> {
   let html = '\n<ul>';
   if (toc.parts) {
     for (const chapter of toc.parts) {
       html += `\n<p class="caption" role="heading"><span class="caption-text"><b>\n${chapter.caption}\n</b></span>\n</p>`;
-      const subISectionHtml = await getSubSection(app, chapter.chapters, cwd);
+      const subISectionHtml = await getSubSection(chapter.chapters, cwd);
       html += `\n${subISectionHtml}`;
     }
   } else {
     if (toc.chapters) {
-      const subISectionHtml = await getSubSection(app, toc.chapters, cwd);
+      const subISectionHtml = await getSubSection(toc.chapters, cwd);
       html += `\n${subISectionHtml}`;
     }
   }
@@ -274,15 +275,15 @@ async function tocToHtml(app: JupyterFrontEnd, toc: IToc, cwd: string): Promise<
   return html;
 }
 
-export async function getTOC(app: JupyterFrontEnd, cwd: string): Promise<string> {
-  const tocPath = await findTOCinParents(app, cwd);
+export async function getTOC(cwd: string): Promise<string> {
+  const tocPath = await findTOCinParents(cwd);
   let configPath = null;
   let configParent = null;
   if (tocPath) {
     const parts = tocPath.split('/');
     parts.pop();
     configParent = parts.join('/');
-    const files = await ls(app, configParent);
+    const files = await ls(configParent);
     const configPattern = '_config.yml';
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
@@ -300,12 +301,12 @@ export async function getTOC(app: JupyterFrontEnd, cwd: string): Promise<string>
     configPath
   ) {
     try {
-      const tocYamlStr = await getFileContents(app, tocPath);
+      const tocYamlStr = await getFileContents(tocPath);
       if (typeof tocYamlStr === 'string') {
         const tocYaml: unknown = yaml.load(tocYamlStr);
         const toc = tocYaml as IToc;
-        const config = await getBookConfig(app, configPath);
-        const toc_html = await tocToHtml(app, toc, configParent);
+        const config = await getBookConfig(configPath);
+        const toc_html = await tocToHtml(toc, configParent);
         return `
           <div class="jbook-toc" data-toc-dir="${configParent}"><p id="toc-title">${config.title}</p>
           <p id="toc-author">Author: ${config.author}</p>

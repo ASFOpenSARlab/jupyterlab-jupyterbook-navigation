@@ -12,6 +12,18 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 
 import * as jbtoc from './jbtoc';
 
+let appInstance: JupyterFrontEnd | null = null;
+
+export function getJupyterAppInstance(app?: JupyterFrontEnd): JupyterFrontEnd {
+  if (!appInstance && app) {
+    appInstance = app;
+  }
+  if (!appInstance) {
+    throw new Error("App instance has not been initialized yet");
+  }
+  return appInstance;
+}
+
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-jupyterbook-navigation:plugin',
   description:
@@ -24,6 +36,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     fileBrowserFactory: IFileBrowserFactory,
     docManager: IDocumentManager
   ) => {
+    getJupyterAppInstance(app);
     console.log(
       'JupyterLab extension jupyterlab-jupyterbook-navigation is activated!'
     );
@@ -47,7 +60,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       try {
         const cwd = fileBrowser?.model.path;
         if (typeof cwd === 'string') {
-          const toc = await jbtoc.getTOC(app, cwd);
+          const toc = await jbtoc.getTOC(cwd);
           summary.innerHTML = toc;
         }
         addClickListenerToButtons(fileBrowser, docManager);
