@@ -60,7 +60,6 @@ function isNotebook(obj: any): obj is INotebook {
   return obj && typeof obj === 'object' && Array.isArray(obj.cells);
 }
 
-
 async function getTitle(filePath: string): Promise<string | null> {
   const suffix = path.extname(filePath);
   if (suffix === '.ipynb') {
@@ -69,12 +68,14 @@ async function getTitle(filePath: string): Promise<string | null> {
       if (isNotebook(jsonData)) {
         const headerCells = jsonData.cells.filter(cell => {
           if (cell.cell_type === 'markdown') {
-            const source = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
+            const source = Array.isArray(cell.source)
+              ? cell.source.join('')
+              : cell.source;
             return source.split('\n').some(line => line.startsWith('# '));
           }
           return false;
         });
-    
+
         const firstHeaderCell = headerCells.length > 0 ? headerCells[0] : null;
         if (firstHeaderCell) {
           if (firstHeaderCell.source.split('\n')[0].slice(0, 2) === '# ') {
@@ -106,7 +107,6 @@ async function getTitle(filePath: string): Promise<string | null> {
   return null;
 }
 
-
 function isIJbookConfig(obj: any): obj is IJbookConfig {
   return obj && typeof obj === 'object' && obj.title && obj.author;
 }
@@ -133,8 +133,8 @@ async function getBookConfig(
 }
 
 async function ls(pth: string): Promise<any> {
-  if (pth === "") {
-    pth = "/";
+  if (pth === '') {
+    pth = '/';
   }
 
   try {
@@ -142,7 +142,7 @@ async function ls(pth: string): Promise<any> {
     const data = await app.serviceManager.contents.get(pth, { content: true });
     return data;
   } catch (error) {
-    console.error("Error listing directory contents:", error);
+    console.error('Error listing directory contents:', error);
     return null;
   }
 }
@@ -153,7 +153,9 @@ async function globFiles(pattern: string): Promise<string[]> {
 
   try {
     const app = getJupyterAppInstance();
-    const data = await app.serviceManager.contents.get(baseDir, { content: true });
+    const data = await app.serviceManager.contents.get(baseDir, {
+      content: true
+    });
     const regex = new RegExp(pattern);
     for (const item of data.content) {
       if (item.type === 'file' && regex.test(item.path)) {
@@ -183,8 +185,7 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
     }
     if (dirs.length == 0) {
       counter += 1;
-    }
-    else {
+    } else {
       dirs.pop();
     }
   }

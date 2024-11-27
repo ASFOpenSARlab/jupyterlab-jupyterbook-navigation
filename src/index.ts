@@ -19,7 +19,7 @@ export function getJupyterAppInstance(app?: JupyterFrontEnd): JupyterFrontEnd {
     appInstance = app;
   }
   if (!appInstance) {
-    throw new Error("App instance has not been initialized yet");
+    throw new Error('App instance has not been initialized yet');
   }
   return appInstance;
 }
