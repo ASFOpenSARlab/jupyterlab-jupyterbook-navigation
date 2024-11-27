@@ -2,20 +2,13 @@
 
 [![Github Actions Status](https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/main?urlpath=lab)
 
-A JupyterLab server extension that provides Jupyter-Book navigation via a sidepanel widget holding a Jupyter-Book table of contents.
+[![Try JupyterLite](https://jupyterlite.github.io/demo/badge.svg)](https://alex-lewandowski.github.io/JupyterLite-demo)
 
-> [!WARNING]
-> This package is currently in a pre-alpha stage:
->
-> 1. **Expect Significant Changes:** Features, functionality, and the overall design may change significantly in future updates.
-> 1. **Limited Functionality and Correctness:** There are no guarantees of full functionality or correctness.
-> 1. **Use at Your Own Risk:** Given its early stage of development, users should exercise caution when integrating this package into critical systems.
+A JupyterLab server extension that provides Jupyter-Book navigation in a sidepanel widget with a Jupyter-Book table of contents.
 
 https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/assets/37909088/3aa48f43-dfeb-466d-8f33-afc10f333f50
 
-This extension is composed of a Python package named `jupyterlab_jupyterbook_navigation`
-for the server extension and a NPM package named `jupyterlab-jupyterbook-navigation`
-for the frontend extension.
+NPM frontend extension: `jupyterlab-jupyterbook-navigation`
 
 ## Requirements
 
