@@ -60,15 +60,22 @@ function isNotebook(obj: any): obj is INotebook {
   return obj && typeof obj === 'object' && Array.isArray(obj.cells);
 }
 
+
 async function getTitle(filePath: string): Promise<string | null> {
   const suffix = path.extname(filePath);
   if (suffix === '.ipynb') {
     try {
       const jsonData: INotebook | string = await getFileContents(filePath);
       if (isNotebook(jsonData)) {
-        const firstHeaderCell = jsonData.cells.find(
-          cell => cell.cell_type === 'markdown'
-        );
+        const headerCells = jsonData.cells.filter(cell => {
+          if (cell.cell_type === 'markdown') {
+            const source = Array.isArray(cell.source) ? cell.source.join('') : cell.source; // Normalize to a string
+            return source.split('\n').some(line => line.startsWith('# '));
+          }
+          return false;
+        });
+    
+        const firstHeaderCell = headerCells.length > 0 ? headerCells[0] : null;
         if (firstHeaderCell) {
           if (firstHeaderCell.source.split('\n')[0].slice(0, 2) === '# ') {
             const title: string = firstHeaderCell.source
@@ -98,6 +105,7 @@ async function getTitle(filePath: string): Promise<string | null> {
   }
   return null;
 }
+
 
 function isIJbookConfig(obj: any): obj is IJbookConfig {
   return obj && typeof obj === 'object' && obj.title && obj.author;
