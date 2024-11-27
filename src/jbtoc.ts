@@ -183,7 +183,7 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
         return file.path;
       }
     }
-    if (dirs.length == 0) {
+    if (dirs.length === 0) {
       counter += 1;
     } else {
       dirs.pop();
