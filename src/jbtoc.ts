@@ -69,7 +69,7 @@ async function getTitle(filePath: string): Promise<string | null> {
       if (isNotebook(jsonData)) {
         const headerCells = jsonData.cells.filter(cell => {
           if (cell.cell_type === 'markdown') {
-            const source = Array.isArray(cell.source) ? cell.source.join('') : cell.source; // Normalize to a string
+            const source = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
             return source.split('\n').some(line => line.startsWith('# '));
           }
           return false;
