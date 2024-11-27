@@ -1,6 +1,6 @@
-import { ServerConnection } from '@jupyterlab/services';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { getJupyterAppInstance } from './index';
 
 interface IFileMetadata {
   path: string;
@@ -41,26 +41,19 @@ interface ICell {
   source: string;
 }
 
-async function getFileContents(path: string): Promise<INotebook | string> {
-  const serverSettings = ServerConnection.makeSettings();
-
-  const url = new URL(path, serverSettings.baseUrl + 'api/contents/').href;
-
-  let response: Response;
-
+async function getFileContents(path: string): Promise<string> {
   try {
-    response = await ServerConnection.makeRequest(url, {}, serverSettings);
+    const app = getJupyterAppInstance();
+    const data = await app.serviceManager.contents.get(path, { content: true });
+    if (data.type === 'notebook' || data.type === 'file') {
+      return data.content as string;
+    } else {
+      throw new Error(`Unsupported file type: ${data.type}`);
+    }
   } catch (error) {
-    console.error(`Failed to get file: ${error}`);
+    console.error(`Failed to get file contents for ${path}:`, error);
     throw error;
   }
-
-  if (!response.ok) {
-    throw new Error(`Failed to get file: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.content;
 }
 
 function isNotebook(obj: any): obj is INotebook {
@@ -73,9 +66,17 @@ async function getTitle(filePath: string): Promise<string | null> {
     try {
       const jsonData: INotebook | string = await getFileContents(filePath);
       if (isNotebook(jsonData)) {
-        const firstHeaderCell = jsonData.cells.find(
-          cell => cell.cell_type === 'markdown'
-        );
+        const headerCells = jsonData.cells.filter(cell => {
+          if (cell.cell_type === 'markdown') {
+            const source = Array.isArray(cell.source)
+              ? cell.source.join('')
+              : cell.source;
+            return source.split('\n').some(line => line.startsWith('# '));
+          }
+          return false;
+        });
+
+        const firstHeaderCell = headerCells.length > 0 ? headerCells[0] : null;
         if (firstHeaderCell) {
           if (firstHeaderCell.source.split('\n')[0].slice(0, 2) === '# ') {
             const title: string = firstHeaderCell.source
@@ -107,7 +108,7 @@ async function getTitle(filePath: string): Promise<string | null> {
 }
 
 function isIJbookConfig(obj: any): obj is IJbookConfig {
-  return obj && typeof obj === 'object' && obj.title && obj.author && obj.logo;
+  return obj && typeof obj === 'object' && obj.title && obj.author;
 }
 
 async function getBookConfig(
@@ -131,36 +132,14 @@ async function getBookConfig(
   return { title: null, author: null };
 }
 
-function getBaseUrl() {
-  const origin = window.location.origin;
-  const pathSegment = window.location.pathname.split('/');
-  // Remove empty strings
-  const filteredSegments = pathSegment.filter(part => part !== '');
-  const labIndex = filteredSegments.lastIndexOf('lab');
-  // If 'lab' not in path, use the entire path, else slice up to last instance of 'lab'
-  const segments =
-    labIndex !== -1
-      ? filteredSegments.slice(0, labIndex).join('/')
-      : filteredSegments.join('/');
-  return segments ? `${origin}/${segments}` : origin;
-}
-
 async function ls(pth: string): Promise<any> {
-  const baseUrl = getBaseUrl();
-  const fullPath = `${baseUrl}/api/contents/${pth}?content=1`;
+  if (pth === '') {
+    pth = '/';
+  }
+
   try {
-    const response = await fetch(fullPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const app = getJupyterAppInstance();
+    const data = await app.serviceManager.contents.get(pth, { content: true });
     return data;
   } catch (error) {
     console.error('Error listing directory contents:', error);
@@ -168,40 +147,33 @@ async function ls(pth: string): Promise<any> {
   }
 }
 
-async function glob_files(pattern: string): Promise<any> {
-  const baseUrl = '/api/globbing/';
-  const fullPath = `${baseUrl}${pattern}`;
+async function globFiles(pattern: string): Promise<string[]> {
+  const baseDir = '';
+  const result: string[] = [];
 
   try {
-    const response = await fetch(fullPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const app = getJupyterAppInstance();
+    const data = await app.serviceManager.contents.get(baseDir, {
+      content: true
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const files = await response.json();
-    const result = [];
-    for (const file of files) {
-      if (file.type === 'file') {
-        result.push(file.path);
+    const regex = new RegExp(pattern);
+    for (const item of data.content) {
+      if (item.type === 'file' && regex.test(item.path)) {
+        result.push(item.path);
       }
     }
-    return result;
   } catch (error) {
     console.error(`Error globbing pattern ${pattern}`, error);
-    return [];
   }
+
+  return result;
 }
 
 async function findTOCinParents(cwd: string): Promise<string | null> {
   const dirs = cwd.split('/');
   const tocPattern: string = '_toc.yml';
-  while (dirs.length > 0) {
+  let counter: number = 0;
+  while (counter < 1) {
     const pth = dirs.join('/');
     const files = await ls(pth);
     for (const value of Object.values(files.content)) {
@@ -211,7 +183,11 @@ async function findTOCinParents(cwd: string): Promise<string | null> {
         return file.path;
       }
     }
-    dirs.pop();
+    if (dirs.length === 0) {
+      counter += 1;
+    } else {
+      dirs.pop();
+    }
   }
   return null;
 }
@@ -278,7 +254,7 @@ async function getSubSection(
     } else if (k.url) {
       html += `<button class="jp-Button toc-button tb-level${level}" style="display:block;"><a class="toc-link tb-level${level}" href="${k.url}" target="_blank" rel="noopener noreferrer" style="display: block;">${k.title}</a></button>`;
     } else if (k.glob) {
-      const files = await glob_files(`${cwd}${k.glob}`);
+      const files = await globFiles(`${cwd}${k.glob}`);
       for (const file of files) {
         const relative = file.replace(`${cwd}`, '');
         await insert_one_file(relative);
@@ -313,12 +289,9 @@ export async function getTOC(cwd: string): Promise<string> {
   let configParent = null;
   if (tocPath) {
     const parts = tocPath.split('/');
-
     parts.pop();
     configParent = parts.join('/');
-
     const files = await ls(configParent);
-
     const configPattern = '_config.yml';
     for (const value of Object.values(files.content)) {
       const file = value as IFileMetadata;
@@ -345,7 +318,7 @@ export async function getTOC(cwd: string): Promise<string> {
         return `
           <div class="jbook-toc" data-toc-dir="${configParent}"><p id="toc-title">${config.title}</p>
           <p id="toc-author">Author: ${config.author}</p>
-          ${toc_html} </div>"
+          ${toc_html} </div>
             `;
       } else {
         console.error('Error: Misconfigured Jupyter Book _toc.yml.');
