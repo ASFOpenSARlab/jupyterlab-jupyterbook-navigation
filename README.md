@@ -1,8 +1,7 @@
 # jupyterlab_jupyterbook_navigation
 
 [![Github Actions Status](https://github.com/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/workflows/Build/badge.svg)](https://github.com/Alex-Lewandowski/jupyterlab-jbook-chapter-navigation/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ASFOpenSARlab/jupyterlab-jupyterbook-navigation/main?urlpath=lab)
-
-[![Try JupyterLite](https://jupyterlite.github.io/demo/badge.svg)](https://alex-lewandowski.github.io/JupyterLite-demo)
+[![Try JupyterLite](https://gist.githubusercontent.com/bollwyvl/72565d11c9f0340c98c8199438cd63d5/raw/d78510cafbc45f83eba2acf51a38e5885d0bb3ce/badge.svg)](https://alex-lewandowski.github.io/JupyterLite-demo)
 
 A JupyterLab server extension that provides Jupyter-Book navigation in a sidepanel widget with a Jupyter-Book table of contents.
 
