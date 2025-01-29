@@ -248,6 +248,7 @@ async function getSubSection(
         (level = level + 1),
         (html = html_cur)
       );
+      level = level - 1;
       html += '</div>';
     } else if (k.file) {
       await insert_one_file(k.file);
@@ -278,7 +279,6 @@ async function tocToHtml(toc: IToc, cwd: string): Promise<string> {
       html += `\n${subISectionHtml}`;
     }
   }
-
   html += '\n</ul>';
   return html;
 }
