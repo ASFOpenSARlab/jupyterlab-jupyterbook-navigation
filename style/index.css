@@ -43,7 +43,7 @@
   background-image: url('jbook_icon.svg');
 }
 
-.jbook-icon svg g path {
+.jbook-icon svg path {
   display: none;
 }
 
