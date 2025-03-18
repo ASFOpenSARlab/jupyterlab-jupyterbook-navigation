@@ -15,6 +15,7 @@ on:
 jobs:
   publish_release:
     runs-on: ubuntu-latest
+    environment: publishing
     permissions:
       # This is useful if you want to use PyPI trusted publisher
       # and NPM provenance
@@ -31,18 +32,22 @@ jobs:
           release_url: ${{ github.event.inputs.release_url }}
           steps_to_skip: ${{ github.event.inputs.steps_to_skip }}
 
+      - name: Download built extension package
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-artifacts 
+
       - name: Finalize Release
         id: finalize-release
         env:
-          # The following are needed if you use legacy PyPI set up
-          # PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          # PYPI_TOKEN_MAP: ${{ secrets.PYPI_TOKEN_MAP }}
-          # TWINE_USERNAME: __token__
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         uses: jupyter-server/jupyter_releaser/.github/actions/finalize-release@v2
         with:
           token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
           release_url: ${{ steps.populate-release.outputs.release_url }}
+
+      - name: Publish to PyPI with OIDC
+        uses: pypa/gh-action-pypi-publish@release/v1
 
       - name: "** Next Step **"
         if: ${{ success() }}
@@ -55,3 +60,4 @@ jobs:
         run: |
           echo "Failed to Publish the Draft Release Url:"
           echo ${{ steps.populate-release.outputs.release_url }}
+          
