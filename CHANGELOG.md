@@ -1,8 +1,7 @@
 # Changelog
 
-## Version 1.0.3
-- Update to prep-release and publish-release GH workflows
-- Update pip installation instructions in README 
+<!-- <START NEW CHANGELOG ENTRY> -->
+<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## Version 1.0.2
 - Fixes #25
