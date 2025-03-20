@@ -19,6 +19,9 @@ on:
         description: "Use PRs with activity since the last stable git tag"
         required: false
         type: boolean
+      steps_to_skip:
+        description: "Comma-separated list of steps to skip"
+        required: false
 jobs:
   prep_release:
     runs-on: ubuntu-latest
@@ -36,6 +39,7 @@ jobs:
           branch: ${{ github.event.inputs.branch }}
           since: ${{ github.event.inputs.since }}
           since_last_stable: ${{ github.event.inputs.since_last_stable }}
+          steps_to_skip: ${{ github.event.inputs.steps_to_skip }}
 
       - name: "** Next Step **"
         run: |
