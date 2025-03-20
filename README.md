@@ -18,7 +18,7 @@ NPM frontend extension: `jupyterlab-jupyterbook-navigation`
 To install the extension, execute:
 
 ```bash
-pip install jupyterlab_jupyterbook_navigation
+python -m pip install jupyterlab_jupyterbook_navigation
 ```
 
 ## Uninstall
@@ -26,7 +26,7 @@ pip install jupyterlab_jupyterbook_navigation
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyterlab_jupyterbook_navigation
+python -m pip uninstall jupyterlab_jupyterbook_navigation
 ```
 
 ## Contributing
