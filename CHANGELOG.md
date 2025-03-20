@@ -4,12 +4,13 @@
 <!-- <END NEW CHANGELOG ENTRY> -->
 
 ## Version 1.0.2
+
 - Fixes #25
 - Fixes #26
 
 ## Version 1.0.1
-- Accidental re-release of v1.0.0
 
+- Accidental re-release of v1.0.0
 
 ## Version 1.0.0
 
