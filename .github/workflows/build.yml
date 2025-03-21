@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: publishing
 
     steps:
     - name: Checkout
@@ -49,17 +48,15 @@ jobs:
         python -m build
         pip uninstall -y "jupyterlab_jupyterbook_navigation" jupyterlab
 
-    - name: Upload extension packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: extension-artifacts
-        path: dist/jupyterlab_jupyterbook_navigation*
-        if-no-files-found: error
+    - name: Upload extension package as release asset
+      run: |
+        gh release upload "${{ steps.populate-release.outputs.release_url }}" dist/jupyterlab_jupyterbook_navigation* --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_PAT }}
 
   test_isolated:
     needs: build
     runs-on: ubuntu-latest
-    environment: publishing
 
     steps:
     - name: Install Python
@@ -87,7 +84,6 @@ jobs:
     name: Integration tests
     needs: build
     runs-on: ubuntu-latest
-    environment: publishing
 
     env:
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
@@ -144,7 +140,6 @@ jobs:
   check_links:
     name: Check Links
     runs-on: ubuntu-latest
-    environment: publishing
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
