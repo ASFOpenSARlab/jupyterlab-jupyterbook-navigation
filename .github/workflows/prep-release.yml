@@ -38,6 +38,11 @@ jobs:
           since: ${{ github.event.inputs.since }}
           since_last_stable: ${{ github.event.inputs.since_last_stable }}
 
+      - name: List all files
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -R
+
       - name: Upload extension-artifacts
         uses: actions/upload-artifact@v4
         with:
