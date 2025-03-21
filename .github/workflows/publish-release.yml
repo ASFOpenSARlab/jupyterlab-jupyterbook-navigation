@@ -40,9 +40,8 @@ jobs:
 
       - name: Tag Release
         run: |
-          python -m pip install jupyter_releaser
           git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
-          VERSION=$(python -m jupyter_releaser.version)
+          VERSION=$(gh release view "${{ github.event.inputs.release_url }}" --json tagName -q ".tagName")
           git commit --allow-empty -am "Publish ${VERSION}"
           jupyter-releaser tag-release
 
