@@ -38,6 +38,12 @@ jobs:
           since: ${{ github.event.inputs.since }}
           since_last_stable: ${{ github.event.inputs.since_last_stable }}
 
+      - name: Upload extension-artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: extension-artifacts
+          path: dist/
+
       - name: "** Next Step **"
         run: |
           echo "Optional): Review Draft Release: ${{ steps.prep-release.outputs.release_url }}"
