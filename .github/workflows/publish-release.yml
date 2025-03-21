@@ -21,6 +21,9 @@ jobs:
       # and NPM provenance
       id-token: write
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Populate Release
@@ -32,11 +35,14 @@ jobs:
           release_url: ${{ github.event.inputs.release_url }}
           steps_to_skip: ${{ github.event.inputs.steps_to_skip }}
 
-      - name: Download built extension package from release
+      - name: Install build dependencies
+        run: python -m pip install -U "jupyterlab>=4.0.0,<5"
+
+      - name: Rebuild the Package with Bumped Version from prep-release
         run: |
-          gh release download "${{ steps.populate-release.outputs.release_url }}" --dir .
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_PAT }}
+          python -m pip install .[test]
+          python -m pip install build
+          python -m build
 
       - name: Finalize Release
         id: finalize-release
