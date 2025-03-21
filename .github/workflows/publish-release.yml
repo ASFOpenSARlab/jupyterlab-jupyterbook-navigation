@@ -39,7 +39,9 @@ jobs:
         run: jupyter-releaser prep-git
 
       - name: Tag Release
-        run: jupyter-releaser tag-release --no-commit
+        run: |
+          git commit --allow-empty -am "Publish $(python -m jupyter_releaser.version)"
+          jupyter-releaser tag-release
 
       - name: Publish to NPM and Finalize Release
         id: publish-npm
