@@ -39,7 +39,7 @@ jobs:
         run: jupyter-releaser prep-git
 
       - name: Tag Release
-        run: jupyter-releaser tag-release
+        run: jupyter-releaser tag-release --no-commit
 
       - name: Publish to NPM and Finalize Release
         id: publish-npm
