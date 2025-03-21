@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: publishing
 
     steps:
     - name: Checkout
@@ -52,11 +53,12 @@ jobs:
       run: |
         gh release upload "${{ steps.populate-release.outputs.release_url }}" dist/jupyterlab_jupyterbook_navigation* --clobber
       env:
-        GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_PAT }}
+        GH_TOKEN: ${{ secrets.PUBLISH_GITHUB_PAT }}
 
   test_isolated:
     needs: build
     runs-on: ubuntu-latest
+    environment: publishing
 
     steps:
     - name: Install Python
@@ -84,6 +86,7 @@ jobs:
     name: Integration tests
     needs: build
     runs-on: ubuntu-latest
+    environment: publishing
 
     env:
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
@@ -140,6 +143,7 @@ jobs:
   check_links:
     name: Check Links
     runs-on: ubuntu-latest
+    environment: publishing
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
