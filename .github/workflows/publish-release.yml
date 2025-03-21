@@ -40,8 +40,7 @@ jobs:
 
       - name: Tag Release
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
+          python -m pip install jupyter_releaser
           git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
           VERSION=$(python -m jupyter_releaser.version)
           git commit --allow-empty -am "Publish ${VERSION}"
