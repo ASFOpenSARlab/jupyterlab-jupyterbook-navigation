@@ -50,8 +50,8 @@ jobs:
       #     git commit --allow-empty -am "Publish ${VERSION}"
       #     jupyter-releaser tag-release
 
-      - name: Publish to NPM and Finalize Release
-        id: publish-npm
+      - name: Finalize Release
+        id: finalize-release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         uses: jupyter-server/jupyter_releaser/.github/actions/finalize-release@v2
@@ -67,9 +67,7 @@ jobs:
         if: ${{ success() }}
         run: |
           echo "Verify the final release"
-          echo ${{ steps.publish-npm.outputs.release_url }}
-          echo "PyPI URL: https://pypi.org/project/jupyterlab-jupyterbook-navigation/${{ env.VERSION }}/"
-          echo "NPM URL: https://www.npmjs.com/package/jupyterlab-jupyterbook-navigation/v/${{ env.VERSION }}/"
+          echo ${{ steps.finalize-release.outputs.release_url }}
 
       - name: "** Failure Message **"
         if: ${{ failure() }}
