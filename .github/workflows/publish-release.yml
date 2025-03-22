@@ -44,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
-          VERSION=$(gh release view "${{ github.event.inputs.release_url }}" --json tagName -q ".tagName")
+          VERSION=$(hatch version)
           git commit --allow-empty -am "Publish ${VERSION}"
           jupyter-releaser tag-release
 
