@@ -39,6 +39,9 @@ jobs:
         run: jupyter-releaser prep-git
 
       - name: Tag Release
+        id: tag-release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
           VERSION=$(gh release view "${{ github.event.inputs.release_url }}" --json tagName -q ".tagName")
