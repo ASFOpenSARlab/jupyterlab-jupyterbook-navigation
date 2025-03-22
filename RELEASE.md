@@ -77,28 +77,6 @@ Here is a summary of the steps to cut a new release:
 
 </details>
 
-<details><summary>Using PyPI token (legacy way)</summary>
-
-- If the repo generates PyPI release(s), create a scoped PyPI [token](https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#saving-credentials-on-github). We recommend using a scoped token for security reasons.
-
-- You can store the token as `PYPI_TOKEN` in your fork's `Secrets`.
-
-  - Advanced usage: if you are releasing multiple repos, you can create a secret named `PYPI_TOKEN_MAP` instead of `PYPI_TOKEN` that is formatted as follows:
-
-    ```text
-    owner1/repo1,token1
-    owner2/repo2,token2
-    ```
-
-    If you have multiple Python packages in the same repository, you can point to them as follows:
-
-    ```text
-    owner1/repo1/path/to/package1,token1
-    owner1/repo1/path/to/package2,token2
-    ```
-
-</details>
-
 - Go to the Actions panel
 - Run the "Step 1: Prep Release" workflow
 - Check the draft changelog
