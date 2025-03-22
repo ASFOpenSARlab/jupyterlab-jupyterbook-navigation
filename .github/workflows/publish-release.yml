@@ -35,20 +35,22 @@ jobs:
           release_url: ${{ github.event.inputs.release_url }}
           steps_to_skip: ${{ github.event.inputs.steps_to_skip }}
 
-      # - name: Prep Git for Tagging
-      #   run: jupyter-releaser prep-git
+      - name: Get Release Version
+        id: get-version
+        run: |
+          VERSION=$(gh release view "${{ steps.populate-release.outputs.release_url }}" --json name -q ".name")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # - name: Tag Release
-      #   id: tag-release
-      #   env:
-      #     GH_TOKEN: ${{ github.token }}
-      #   run: |
-      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
-      #     git config user.name "${{ github.actor }}"
-      #     git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
-      #     VERSION=$(hatch version)
-      #     git commit --allow-empty -am "Publish ${VERSION}"
-      #     jupyter-releaser tag-release
+      - name: Tag Release
+        id: tag-release
+        env:
+          GH_TOKEN: ${{ secrets.PUBLISH_GITHUB_PAT }}
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          git remote set-url origin https://x-access-token:${{ secrets.PUBLISH_GITHUB_PAT }}@github.com/${{ github.repository }}
+          git commit --allow-empty -am "Publish ${VERSION}"
+          jupyter-releaser tag-release
 
       - name: Finalize Release
         id: finalize-release
@@ -58,10 +60,6 @@ jobs:
         with:
           token: ${{ secrets.PUBLISH_GITHUB_PAT }}
           release_url: ${{ steps.populate-release.outputs.release_url }}
-
-      # - name: Publish to PyPI
-      #   id: publish-pypi
-      #   uses: pypa/gh-action-pypi-publish@release/v1
 
       - name: "** Next Step **"
         if: ${{ success() }}
